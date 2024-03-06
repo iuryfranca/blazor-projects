@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\2020102049023-2\\Documents\\projects\\LearningBlazor\\LearningBlazor.csproj": {}
+    "c:\\Users\\2020102049023-2\\Documents\\projects\\LearningBlazor\\LearningBlazor.csproj": {}
   },
   "projects": {
-    "C:\\Users\\2020102049023-2\\Documents\\projects\\LearningBlazor\\LearningBlazor.csproj": {
+    "c:\\Users\\2020102049023-2\\Documents\\projects\\LearningBlazor\\LearningBlazor.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\2020102049023-2\\Documents\\projects\\LearningBlazor\\LearningBlazor.csproj",
+        "projectUniqueName": "c:\\Users\\2020102049023-2\\Documents\\projects\\LearningBlazor\\LearningBlazor.csproj",
         "projectName": "LearningBlazor",
-        "projectPath": "C:\\Users\\2020102049023-2\\Documents\\projects\\LearningBlazor\\LearningBlazor.csproj",
+        "projectPath": "c:\\Users\\2020102049023-2\\Documents\\projects\\LearningBlazor\\LearningBlazor.csproj",
         "packagesPath": "C:\\Users\\2020102049023-2\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\2020102049023-2\\Documents\\projects\\LearningBlazor\\obj\\",
+        "outputPath": "c:\\Users\\2020102049023-2\\Documents\\projects\\LearningBlazor\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
