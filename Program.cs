@@ -1,6 +1,8 @@
+using LearningBlazor.Context;
+using LearningBlazor.Data;
+using LearningBlazor.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
-using LearningBlazor.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,6 +10,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddSingleton<WeatherForecastService>();
+
+// Injeção de dependências
+builder.Services.AddScoped<PessoaService>();
+builder.Services.AddScoped<ContextDB>();
 
 var app = builder.Build();
 

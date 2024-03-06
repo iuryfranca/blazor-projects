@@ -1,0 +1,44 @@
+﻿@page "/lista"
+@using LearningBlazor.Models;
+@using LearningBlazor.Services;
+@inject PessoaService pessoaService;
+
+<h3>PESSOAS CADASTRADAS</h3>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Nome</th>
+            <th>Cpf</th>
+            <th>DataNascimento</th>
+            <th>Telefone</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in pessoas)
+        {
+            <tr>
+                <td>@item.Id</td>
+                <td>@item.Nome</td>
+                <td>@item.Cpf</td>
+                <td>@item.DataNasc</td>
+                <td>@item.Telefone</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+@code {
+
+    List<Pessoa> pessoas { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        pessoas = new List<Pessoa>();
+        var lista = pessoaService?.GetAllPessoas();
+        pessoas = lista.Result.ToList();
+    }
+
+}
