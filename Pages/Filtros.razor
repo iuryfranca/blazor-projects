@@ -1,0 +1,128 @@
+@page "/filtros"
+@using LearningBlazor.Models
+@using LearningBlazor.Services
+@inject PessoaService pessoaService
+@inject NavigationManager navegacao
+
+<h3>Filtros</h3>
+
+<div class="container">
+  <nav class="navbar navbar-light" style="background-color: darkgreen"></nav>
+  <div class="row align-items-start">
+    <div class="col">
+      <div class="mb-3">
+        <label for="exampleFormControlInput1" class="form-label">POR NOME:</label>
+        <input @bind="Nome" type="text" class="form-control" id="exampleFormControlInput2">
+        <nav class="navbar navbar-light" style="background-color: white"></nav>
+        <button type="button" class="btn btn-success" @onclick="FiltroExato">FILTRO EXATO</button>
+        <button type="button" class="btn btn-success" @onclick="Filtro">FILTRO APROXIMAÇÃO</button>
+      </div>
+    </div>
+    <div class="col">
+      <label for="veiculo" class="form-label">CONSULTAR EX1:</label>
+      <select @onchange="FiltroSelect" class="form-select" aria-label="Selecione uma pessoa">
+        <option selected>Selecione um nome</option>
+        @foreach (var item in pessoas)
+        {
+          <option value=@item?.Cpf>@item?.Nome</option>
+        }
+      </select>
+    </div>
+    <div class="col">
+      <label for="input-datalist">CONSULTAR EX2</label>
+      <input type="text" class="form-control" placeholder="Digite um nome" list="lista-pessoas" @onchange="Filtr">
+      <datalist id="lista-pessoas">
+        @foreach (var item in pessoas)
+        {
+          <option value=@item?.Cpf>@item?.Nome</option>
+        }
+      </datalist>
+    </div>
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Id</th>
+          <th>Nome</th>
+          <th>Cpf</th>
+          <th>DataNascimento</th>
+          <th>Telefone</th>
+        </tr>
+      </thead>
+      <tbody>
+        @foreach (var item in pessoasFiltro)
+        {
+          <tr>
+            <td>@item.Id</td>
+            <td>@item.Nome</td>
+            <td>@item.Cpf</td>
+            <td>@item.DataNasc</td>
+            <td>@item.Telefone</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
+
+@code {
+  private List<Pessoa> pessoas { get; set; }
+
+  private List<Pessoa> pessoasFiltro = new List<Pessoa>();
+
+  private bool campoBloqueado = false;
+
+  private string? Nome { get; set; }
+
+  protected override async Task OnInitializedAsync()
+  {
+
+    pessoas = new List<Pessoa>();
+
+    var lista = pessoaService?.GetAllPessoas();
+
+    pessoas = lista.Result.ToList();
+
+  }
+
+  public void FiltroExato()
+  {
+
+    pessoasFiltro.Clear();
+
+    if (Nome != null)
+    {
+      pessoasFiltro = pessoas.Where(p => p.Nome == Nome).ToList();
+    }
+  }
+
+  public void Filtro()
+  {
+    pessoasFiltro.Clear();
+
+    if (Nome != null)
+    {
+      pessoasFiltro = pessoas.Where(p => p.Nome.Contains(Nome)).ToList();
+    }
+  }
+
+  public void FiltroSelect(ChangeEventArgs e)
+  {
+    pessoasFiltro.Clear();
+
+    if (e.Value != null)
+    {
+      pessoasFiltro = pessoas.Where(p => p.Cpf == e.Value.ToString()).ToList();
+    }
+  }
+
+  public void Filtr(ChangeEventArgs e)
+  {
+    pessoasFiltro.Clear();
+
+    if (e.Value != null)
+    {
+      pessoasFiltro = pessoas.Where(p => p.Cpf == e.Value.ToString()).ToList();
+    }
+  }
+}

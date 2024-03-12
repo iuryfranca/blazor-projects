@@ -2,7 +2,7 @@
 @using LearningBlazor.Models
 @using LearningBlazor.Services
 @inject PessoaService pessoaService
-@inject NavigationManager navegacao;
+@inject NavigationManager navegacao
 
 <h3>Consultas</h3>
 
@@ -10,11 +10,11 @@
   <nav class="navbar navbar-light" style="background-color: darkgreen"></nav>
   <div class="form-group">
     <label for="input-datalist">Buscar</label>
-    <input type="text" class="form-control" placeholder="Buscar" list="lista-pessoas" @onchange="">
+    <input type="text" class="form-control" placeholder="Buscar" list="lista-pessoas" @onchange="SelecionarPessoaByCPF">
     <datalist id="lista-pessoas">
-      @foreach (var item in ?)
+      @foreach (var item in pessoas)
       {
-        <option value="@item.?">@item.?</option>
+        <option value="@item?.Cpf">@item?.Cpf</option>
       }
     </datalist>
   </div>
@@ -23,25 +23,29 @@
   <nav class="navbar navbar-light" style="background-color: white"></nav>
   <div class="mb-3">
     <label for="exampleFormControlInput1" class="form-label">NOME:</label>
-    <input @bind="" type="text" class="form-control" id="exampleFormControlInput1" disabled="@campoBloqueado">
+    <input @bind="pessoa.Nome" type="text" class="form-control" id="exampleFormControlInput1"
+      disabled="@campoBloqueado">
   </div>
   <div class="row align-items-start">
     <div class="col">
       <div class="mb-3">
         <label for="exampleFormControlInput1" class="form-label">CPF:</label>
-        <input @bind="" type="text" class="form-control" id="exampleFormControlInput2" disabled="@campoBloqueado">
+        <input @bind="pessoa.Cpf" type="text" class="form-control" id="exampleFormControlInput2"
+          disabled="@campoBloqueado">
       </div>
     </div>
     <div class="col">
       <div class="mb-3">
         <label for="exampleFormControlInput1" class="form-label">DATA DE NASCIMENTO:</label>
-        <input @bind="" type="date" class="form-control" id="exampleFormControlInput2" disabled="@campoBloqueado">
+        <input @bind="pessoa.DataNasc" type="date" class="form-control" id="exampleFormControlInput2"
+          disabled="@campoBloqueado">
       </div>
     </div>
     <div class="col">
       <div class="mb-3">
         <label for="exampleFormControlInput1" class="form-label">TELEFONE:</label>
-        <input @bind="" type="tel" class="form-control" id="exampleFormControlInput2" disabled="@campoBloqueado">
+        <input @bind="pessoa.Telefone" type="tel" class="form-control" id="exampleFormControlInput2"
+          disabled="@campoBloqueado">
       </div>
     </div>
   </div>
@@ -55,6 +59,13 @@
   protected override async Task OnInitializedAsync()
   {
     pessoas = await pessoaService?.GetAllPessoas();
+  }
+
+  public void SelecionarPessoaByCPF(ChangeEventArgs e)
+  {
+    var cpf = e.Value.ToString();
+    pessoa = pessoas.Where(p => p.Cpf == cpf).FirstOrDefault();
+    campoBloqueado = true;
   }
 
 
