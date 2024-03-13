@@ -9,14 +9,14 @@ public class Pessoa
     public int Id { get; set; }
 
     [Column("nome")]
-    public string Nome { get; set; }
+    public string? Nome { get; set; }
 
     [Column("cpf")]
-    public string Cpf { get; set; }
+    public string? Cpf { get; set; }
 
     [Column("data_nascimento")]
-    public DateTime DataNascimento { get; set; }
+    public DateTime? DataNascimento { get; set; }
 
     [Column("telefone")]
-    public string Telefone { get; set; }
+    public string? Telefone { get; set; }
 }

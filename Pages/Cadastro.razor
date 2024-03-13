@@ -67,7 +67,7 @@
 
   private async Task Salvar()
   {
-
+    pessoa.DataNascimento = pessoa.DataNascimento.Value.ToUniversalTime();
     await pessoaService.AddPessoa(pessoa);
     novo = true;
     campoBloqueado = true;
