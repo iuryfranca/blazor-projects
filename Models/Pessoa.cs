@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace LearningBlazor.Models;
 
-[Table("Pessoa", Schema = "public")]
+[Table("pessoa", Schema = "public")]
 public class Pessoa
 {
     [Column("id")]
