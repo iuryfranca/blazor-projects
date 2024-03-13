@@ -1,6 +1,9 @@
+using LearningBlazor.Context;
+using LearningBlazor.Data;
+using LearningBlazor.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
-using LearningBlazor.Data;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,6 +11,13 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddSingleton<WeatherForecastService>();
+builder.Services.AddScoped<PessoaService>();
+
+builder
+    .Services.AddEntityFrameworkNpgsql()
+    .AddDbContext<ContextBD>(opt =>
+        opt.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
+    );
 
 var app = builder.Build();
 
