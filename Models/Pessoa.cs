@@ -1,42 +1,22 @@
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace LearningBlazor.Models;
 
+[Table("Pessoa", Schema = "public")]
 public class Pessoa
 {
+    [Column("id")]
+    public int Id { get; set; }
+
+    [Column("nome")]
     public string Nome { get; set; }
-    public double Peso { get; set; }
-    public double Altura { get; set; }
 
-    public double CalcularIMC()
-    {
-        return Peso / (Altura * Altura);
-    }
+    [Column("cpf")]
+    public string Cpf { get; set; }
 
-    public string SituacaoIMC()
-    {
-        var imc = CalcularIMC();
-        if (imc < 18.5)
-        {
-            return "Abaixo do peso";
-        }
-        else if (imc < 24.9)
-        {
-            return "Peso normal";
-        }
-        else if (imc < 29.9)
-        {
-            return "Sobrepeso";
-        }
-        else if (imc < 34.9)
-        {
-            return "Obesidade grau 1";
-        }
-        else if (imc < 39.9)
-        {
-            return "Obesidade grau 2";
-        }
-        else
-        {
-            return "Obesidade grau 3";
-        }
-    }
+    [Column("data_nascimento")]
+    public DateTime DataNascimento { get; set; }
+
+    [Column("telefone")]
+    public string Telefone { get; set; }
 }
