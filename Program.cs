@@ -2,6 +2,7 @@ using LearningBlazor.Context;
 using LearningBlazor.Data;
 using LearningBlazor.Services;
 using Microsoft.EntityFrameworkCore;
+using MySql.Data.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
