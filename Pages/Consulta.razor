@@ -1,0 +1,164 @@
+﻿@page "/consulta"
+@using LearningBlazor.Models;
+@using LearningBlazor.Services;
+@inject PessoaService pessoaService;
+@inject PropriedadeService propriedadeService;
+@inject NavigationManager navegacao;
+
+<h3>Consulta</h3>
+
+<div class="container">
+    <nav class="navbar navbar-light" style="background-color: darkgreen"></nav>
+    <div class="form-group">
+        <label for="input-datalist">Buscar</label>
+        <input @bind="" type="text" class="form-control" placeholder="Buscar" list="lista-pessoas"
+            @onchange="SelecionarPessoas">
+        <datalist id="lista-pessoas">
+            @foreach (var item in listPessoas)
+            {
+                <option value="@item.Cpf">@item.Nome</option>
+            }
+
+        </datalist>
+    </div>
+    <nav class="navbar navbar-light" style="background-color: white"></nav>
+    <nav class="navbar navbar-light" style="background-color: darkgreen"></nav>
+    <nav class="navbar navbar-light" style="background-color: white"></nav>
+    <div class="mb-3">
+        <label for="exampleFormControlInput1" class="form-label">NOME:</label>
+        <input @bind="pessoa.Nome" type="text" class="form-control" id="exampleFormControlInput1" disabled="true">
+    </div>
+    <div class="row align-items-start">
+        <div class="col">
+            <div class="mb-3">
+                <label for="exampleFormControlInput1" class="form-label">CPF:</label>
+                <input @bind="pessoa.Cpf" type="text" class="form-control" id="exampleFormControlInput2"
+                    disabled="true">
+            </div>
+        </div>
+        <div class="col">
+            <div class="mb-3">
+                <label for="exampleFormControlInput1" class="form-label">DATA DE NASCIMENTO:</label>
+                <input @bind="pessoa.DataNasc" type="date" class="form-control" id="exampleFormControlInput2"
+                    disabled="true">
+            </div>
+        </div>
+        <div class="col">
+            <div class="mb-3">
+                <label for="exampleFormControlInput1" class="form-label">TELEFONE:</label>
+                <input @bind="pessoa.Telefone" type="tel" class="form-control" id="exampleFormControlInput2"
+                    disabled="true">
+            </div>
+        </div>
+    </div>
+
+
+    <nav class="navbar navbar-light" style="background-color: white"></nav>
+
+    <nav class="navbar navbar-light" style="background-color: darkorange"></nav>
+
+    <nav class="navbar navbar-light" style="background-color: white"></nav>
+
+    <h4 style="text-align:center">Bens Cadastrados</h4>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Descrição</th>
+                <th>Valor</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in propriedades)
+            {
+                <tr>
+                    <td>@item.Descricao</td>
+                    <td>@item.Valor</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+</div>
+
+@code {
+    private string? Descricao { get; set; }
+    private Double? Valor { get; set; }
+
+    private bool campoBloqueado = false;
+    private bool novo = false;
+
+    private Pessoa pessoa = new Pessoa();
+    private List<Pessoa> listPessoas = new List<Pessoa>();
+    private Propriedade propriedade = new Propriedade();
+
+    private List<Propriedade> propriedades = new List<Propriedade>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        listPessoas = await pessoaService.GetPessoas();
+    }
+
+    private void CreatePropriedade()
+    {
+        propriedade.Descricao = Descricao;
+        propriedade.Valor = Valor;
+
+        propriedades.Add(propriedade);
+
+        Descricao = null;
+        Valor = null;
+    }
+
+    private async Task SelecionarPessoas(ChangeEventArgs e)
+    {
+        var cpf = e.Value.ToString();
+
+        pessoa = await pessoaService.GetPessoaByCpf(cpf);
+
+        if (pessoa != null)
+        {
+            propriedades = pessoa.Propriedades;
+        }
+    }
+
+    private void AddBens()
+    {
+
+        propriedade.Descricao = Descricao;
+        propriedade.Valor = Valor;
+        propriedade.Pessoa = pessoa;
+
+        propriedades.Add(propriedade);
+
+        Descricao = null;
+        Valor = null;
+    }
+
+    private async Task Salvar()
+    {
+        await propriedadeService.CreatePropriedade(propriedade);
+
+        novo = true;
+        campoBloqueado = true;
+    }
+
+    private void NovoRegistro()
+    {
+        novo = false;
+        campoBloqueado = false;
+        pessoa = new Pessoa();
+        propriedades = new List<Propriedade>();
+
+        Descricao = null;
+        Valor = null;
+    }
+
+    private void Cancelar()
+    {
+        Descricao = null;
+        Valor = null;
+
+        pessoa = new Pessoa();
+        propriedades = new List<Propriedade>();
+    }
+}
