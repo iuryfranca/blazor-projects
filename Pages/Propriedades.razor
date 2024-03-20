@@ -157,6 +157,7 @@
         propriedade.Descricao = Descricao;
         propriedade.Valor = Valor;
         propriedade.Pessoa = pessoa;
+        propriedade.IdPessoa = pessoa.Id;
 
         propriedades.Add(propriedade);
 
@@ -166,6 +167,11 @@
 
     private async Task Salvar()
     {
+        if (!propriedades.Any())
+        {
+            return;
+        }
+
         await propriedadeService.CreatePropriedade(propriedade);
 
         novo = true;

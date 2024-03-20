@@ -11,8 +11,7 @@
     <nav class="navbar navbar-light" style="background-color: darkgreen"></nav>
     <div class="form-group">
         <label for="input-datalist">Buscar</label>
-        <input @bind="" type="text" class="form-control" placeholder="Buscar" list="lista-pessoas"
-            @onchange="SelecionarPessoas">
+        <input type="text" class="form-control" placeholder="Buscar" list="lista-pessoas" @onchange="SelecionarPessoas">
         <datalist id="lista-pessoas">
             @foreach (var item in listPessoas)
             {
