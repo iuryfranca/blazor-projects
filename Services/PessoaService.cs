@@ -35,7 +35,7 @@ public class PessoaService
 
     public async Task<Pessoa>? CreatePessoa(Pessoa pessoa)
     {
-        _context.Pessoas.Add(pessoa);
+        await _context.Pessoas.AddAsync(pessoa);
         await _context.SaveChangesAsync();
         return pessoa;
     }

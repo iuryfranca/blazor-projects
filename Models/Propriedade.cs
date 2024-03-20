@@ -15,7 +15,7 @@ public class Propriedade
     public Double? Valor { get; set; }
 
     [Column("id_pessoa")]
-    public DateTime? IdPessoa { get; set; }
+    public int? IdPessoa { get; set; }
 
     [ForeignKey("IdPessoa")]
     public Pessoa? Pessoa { get; set; }

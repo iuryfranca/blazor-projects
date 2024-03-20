@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace LearningBlazor.Models;
 
-[Table("pessoas")]
+[Table("pessoa")]
 public class Pessoa
 {
     [Column("id")]
@@ -14,7 +14,7 @@ public class Pessoa
     [Column("cpf")]
     public string? Cpf { get; set; }
 
-    [Column("data_nasc")]
+    [Column("data_nascimento")]
     public DateTime? DataNasc { get; set; }
 
     [Column("telefone")]
