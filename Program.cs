@@ -1,8 +1,7 @@
 using LearningBlazor.Context;
 using LearningBlazor.Data;
 using LearningBlazor.Services;
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,7 +12,12 @@ builder.Services.AddSingleton<WeatherForecastService>();
 
 // Injeção de dependências
 builder.Services.AddScoped<PessoaService>();
-builder.Services.AddScoped<ContextDB>();
+builder.Services.AddScoped<PropriedadeService>();
+
+string mySqlConnectionStr = builder.Configuration.GetConnectionString("DefaultConnection");
+builder.Services.AddDbContextPool<ContextDB>(options =>
+    options.UseMySql(mySqlConnectionStr, ServerVersion.AutoDetect(mySqlConnectionStr))
+);
 
 var app = builder.Build();
 

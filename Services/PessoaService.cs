@@ -1,6 +1,7 @@
 using LearningBlazor.Context;
 using LearningBlazor.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace LearningBlazor.Services;
 
@@ -13,46 +14,29 @@ public class PessoaService
         _context = context;
     }
 
-    public async Task<List<Pessoa>>? GetAllPessoas()
+    public async Task<List<Pessoa>>? GetPessoas()
     {
-        var pessoas = _context.Pessoas?.ToList();
-
-        if (pessoas == null)
-        {
-            return new List<Pessoa>();
-        }
-
-        return pessoas;
+        return await _context.Pessoas.Include(p => p.Propriedades).ToListAsync();
     }
 
-    public async Task<Pessoa>? GetPessoa(int id)
+    public async Task<Pessoa>? GetPessoaById(int id)
     {
-        var pessoa = _context.Pessoas?.FirstOrDefault(p => p.Id == id);
-
-        if (pessoa == null)
-        {
-            return new Pessoa();
-        }
-
-        return pessoa;
+        return await _context
+            .Pessoas.Include(p => p.Propriedades)
+            .FirstOrDefaultAsync(p => p.Id == id);
     }
 
     public async Task<Pessoa>? GetPessoaByCpf(string cpf)
     {
-        var pessoa = _context.Pessoas?.FirstOrDefault(p => p.Cpf == cpf);
-
-        if (pessoa == null)
-        {
-            return new Pessoa();
-        }
-
-        return pessoa;
+        return await _context
+            .Pessoas.Include(p => p.Propriedades)
+            .FirstOrDefaultAsync(p => p.Cpf == cpf);
     }
 
     public async Task<Pessoa>? CreatePessoa(Pessoa pessoa)
     {
-        _context.Pessoas?.Add(pessoa);
-
+        _context.Pessoas.Add(pessoa);
+        await _context.SaveChangesAsync();
         return pessoa;
     }
 }

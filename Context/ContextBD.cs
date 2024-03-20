@@ -1,13 +1,13 @@
 using LearningBlazor.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace LearningBlazor.Context;
 
-public class ContextDB
+public class ContextDB : DbContext
 {
-    public ContextDB()
-    {
-        Pessoas = new List<Pessoa>();
-    }
+    public ContextDB(DbContextOptions<ContextDB> options)
+        : base(options) { }
 
-    public List<Pessoa>? Pessoas { get; set; }
+    public DbSet<Pessoa>? Pessoas { get; set; }
+    public DbSet<Propriedade>? Propriedades { get; set; }
 }
