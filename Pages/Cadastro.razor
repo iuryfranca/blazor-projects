@@ -91,7 +91,7 @@
             {
                 <tr>
                     <td>@item.Descricao</td>
-                    <td>@item.Valor</td>
+                    <td>R$ @FormatValue(@item.Valor.Value)</td>
                 </tr>
             }
         </tbody>
@@ -155,5 +155,10 @@
         Descricao = null;
         Valor = null;
         propriedades = new List<Propriedade>();
+    }
+
+    private string FormatValue(double value)
+    {
+        return value.ToString("N2");
     }
 }

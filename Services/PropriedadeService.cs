@@ -33,4 +33,40 @@ public class PropriedadeService
         await _context.SaveChangesAsync();
         return propriedade;
     }
+
+    public async Task<List<Propriedade>>? FilterByValue(double value, int Id)
+    {
+        return await _context
+            .Propriedades.Where(p => p.Valor >= value && p.IdPessoa == Id)
+            .ToListAsync();
+    }
+
+    public async Task<List<Propriedade>>? FilterByDescription(string value, int Id)
+    {
+        return await _context
+            .Propriedades.Where(p => p.Descricao.Contains(value) && p.IdPessoa == Id)
+            .ToListAsync();
+    }
+
+    public async Task<List<Propriedade>>? FilterByValueAndDescription(
+        double value,
+        string description,
+        int Id
+    )
+    {
+        if (description.Length > 0)
+        {
+            return await _context
+                .Propriedades.Where(p =>
+                    p.Valor >= value && p.Descricao.Contains(description) && p.IdPessoa == Id
+                )
+                .ToListAsync();
+        }
+        else
+        {
+            return await _context
+                .Propriedades.Where(p => p.Valor >= value && p.IdPessoa == Id)
+                .ToListAsync();
+        }
+    }
 }

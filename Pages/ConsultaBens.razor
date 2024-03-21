@@ -175,13 +175,67 @@
         }
     }
 
-    private void FiltrarBens()
+    private async void FiltrarBens()
     {
-        FiltroValor();
-        FiltroDescricao();
+        if (ExibirFiltroValor && ExibirFiltroDescricao)
+        {
+            await FiltroValorEDescricaoPeloBanco();
+            return;
+        }
+
+        if (ExibirFiltroValor)
+        {
+            await FiltroValorPeloBanco();
+            return;
+        }
+
+        if (ExibirFiltroDescricao)
+        {
+            await FiltroDescricaoPeloBanco();
+            return;
+        }
+
     }
 
-    private void FiltroValor()
+    private async Task FiltroValorPeloBanco()
+    {
+        if (filtroValor >= 0)
+        {
+            propriedadesFiltrada = await propriedadeService.FilterByValue(filtroValor, pessoa.Id);
+            StateHasChanged();
+        }
+    }
+
+
+    private async Task FiltroDescricaoPeloBanco()
+    {
+        if (!string.IsNullOrEmpty(filtroDescricao))
+        {
+            propriedadesFiltrada = await propriedadeService.FilterByDescription(filtroDescricao, pessoa.Id);
+            StateHasChanged();
+        }
+    }
+
+    private async Task FiltroValorEDescricaoPeloBanco()
+    {
+        if (filtroValor >= 0 && !string.IsNullOrEmpty(filtroDescricao))
+        {
+            propriedadesFiltrada = await propriedadeService.FilterByValueAndDescription(filtroValor, filtroDescricao, pessoa.Id);
+            StateHasChanged();
+        }
+        else if (filtroValor >= 0)
+        {
+            await FiltroValorPeloBanco();
+        }
+        else if (!string.IsNullOrEmpty(filtroDescricao))
+        {
+            await FiltroDescricaoPeloBanco();
+        }
+    }
+
+    // Aqui eu trado todos os dados do banco e filtro só no front, porém não é a melhor prática
+
+    private void FiltroValorSoFront()
     {
         if (filtroValor >= 0)
         {
@@ -189,7 +243,9 @@
         }
     }
 
-    private void FiltroDescricao()
+    // Aqui eu trado todos os dados do banco e filtro só no front, porém não é a melhor prática
+
+    private void FiltroDescricaoSoFront()
     {
         if (!string.IsNullOrEmpty(filtroDescricao))
         {
@@ -197,10 +253,12 @@
         }
     }
 
+
     private void Limpar()
     {
         pessoa = new Pessoa();
         propriedades = new List<Propriedade>();
+        propriedadesFiltrada = new List<Propriedade>();
         filtroValor = 0;
         cpfPesquisa = "";
     }
