@@ -51,6 +51,9 @@
         </div>
     </div>
 
+    <nav class="navbar navbar-light" style="background-color: white"></nav>
+
+    <button type="button" class="btn btn-primary" @onclick="Limpar">LIMPAR</button>
 
     <nav class="navbar navbar-light" style="background-color: white"></nav>
 
@@ -71,41 +74,34 @@
             {
                 <tr>
                     <td>@item.Descricao</td>
-                    <td>@item.Valor</td>
+                    <td>R$ @FormatValue(@item.Valor.Value)</td>
                 </tr>
             }
         </tbody>
     </table>
 
+
+    <nav class="navbar navbar-light" style="background-color: darkorange"></nav>
+
+    @if (propriedades.Count > 0)
+    {
+        <h4>Total: R$ @FormatValue(@valorTotal)</h4>
+    }
+
+    <nav class="navbar navbar-light" style="background-color: darkorange"></nav>
+
 </div>
 
 @code {
-    private string? Descricao { get; set; }
-    private Double? Valor { get; set; }
-
-    private bool campoBloqueado = false;
-    private bool novo = false;
-
+    private Double valorTotal = 0;
     private Pessoa pessoa = new Pessoa();
     private List<Pessoa> listPessoas = new List<Pessoa>();
-    private Propriedade propriedade = new Propriedade();
 
     private List<Propriedade> propriedades = new List<Propriedade>();
 
     protected override async Task OnInitializedAsync()
     {
         listPessoas = await pessoaService.GetPessoas();
-    }
-
-    private void CreatePropriedade()
-    {
-        propriedade.Descricao = Descricao;
-        propriedade.Valor = Valor;
-
-        propriedades.Add(propriedade);
-
-        Descricao = null;
-        Valor = null;
     }
 
     private async Task SelecionarPessoas(ChangeEventArgs e)
@@ -118,46 +114,31 @@
         {
             propriedades = pessoa.Propriedades;
         }
+
+        TotalBens();
     }
 
-    private void AddBens()
+    private void TotalBens()
     {
+        valorTotal = 0;
 
-        propriedade.Descricao = Descricao;
-        propriedade.Valor = Valor;
-        propriedade.Pessoa = pessoa;
-
-        propriedades.Add(propriedade);
-
-        Descricao = null;
-        Valor = null;
+        foreach (var item in propriedades)
+        {
+            if (item.Valor.HasValue)
+            {
+                valorTotal += item.Valor.Value;
+            }
+        }
     }
 
-    private async Task Salvar()
+    private void Limpar()
     {
-        await propriedadeService.CreatePropriedade(propriedade);
-
-        novo = true;
-        campoBloqueado = true;
-    }
-
-    private void NovoRegistro()
-    {
-        novo = false;
-        campoBloqueado = false;
         pessoa = new Pessoa();
         propriedades = new List<Propriedade>();
-
-        Descricao = null;
-        Valor = null;
     }
 
-    private void Cancelar()
+    private string FormatValue(double value)
     {
-        Descricao = null;
-        Valor = null;
-
-        pessoa = new Pessoa();
-        propriedades = new List<Propriedade>();
+        return value.ToString("N2");
     }
 }
