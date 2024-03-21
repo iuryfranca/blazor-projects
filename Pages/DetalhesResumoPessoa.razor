@@ -1,0 +1,150 @@
+﻿@page "/detalhes-resumido-pessoa"
+@using LearningBlazor.Models;
+@using LearningBlazor.Services;
+@inject PessoaService pessoaService;
+@inject PropriedadeService propriedadeService;
+@inject NavigationManager navegacao;
+
+<h3>Detalhes Resumido Pessoas</h3>
+
+<div class="container">
+    <nav class="navbar navbar-light" style="background-color: darkgreen"></nav>
+    <div class="form-group">
+        <label for="input-datalist">Buscar</label>
+        <input type="text" value="@cpfPesquisa" class="form-control" placeholder="Buscar" list="lista-pessoas"
+            @onchange="SelecionarPessoas">
+        <datalist id="lista-pessoas">
+            @foreach (var item in listPessoas)
+            {
+                <option value="@item.Cpf">@item.Nome</option>
+            }
+
+        </datalist>
+    </div>
+    <nav class="navbar navbar-light" style="background-color: white"></nav>
+    <nav class="navbar navbar-light" style="background-color: darkgreen"></nav>
+    <nav class="navbar navbar-light" style="background-color: white"></nav>
+    <div class="mb-3">
+        <label for="exampleFormControlInput1" class="form-label">NOME:</label>
+        <input @bind="pessoa.Nome" type="text" class="form-control" id="exampleFormControlInput1" disabled="true">
+    </div>
+    <div class="row align-items-start">
+        <div class="col">
+            <div class="mb-3">
+                <label for="exampleFormControlInput1" class="form-label">CPF:</label>
+                <input @bind="pessoa.Cpf" type="text" class="form-control" id="exampleFormControlInput2"
+                    disabled="true">
+            </div>
+        </div>
+        <div class="col">
+            <div class="mb-3">
+                <label for="exampleFormControlInput1" class="form-label">DATA DE NASCIMENTO:</label>
+                <input @bind="pessoa.DataNasc" type="date" class="form-control" id="exampleFormControlInput2"
+                    disabled="true">
+            </div>
+        </div>
+        <div class="col">
+            <div class="mb-3">
+                <label for="exampleFormControlInput1" class="form-label">TELEFONE:</label>
+                <input @bind="pessoa.Telefone" type="tel" class="form-control" id="exampleFormControlInput2"
+                    disabled="true">
+            </div>
+        </div>
+    </div>
+
+    <nav class="navbar navbar-light" style="background-color: white"></nav>
+
+    <button type="button" class="btn btn-primary" @onclick="Limpar">LIMPAR</button>
+
+    <nav class="navbar navbar-light" style="background-color: white"></nav>
+
+    <nav class="navbar navbar-light" style="background-color: darkorange"></nav>
+
+    <nav class="navbar navbar-light" style="background-color: white"></nav>
+
+    <h4 style="text-align:center">Bens de Maior Valor Cadastrado1</h4>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Descrição</th>
+                <th>Valor</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            <tr>
+                <td>@Descricao</td>
+                <td>R$ @FormatValue(@Valor.Value)</td>
+            </tr>
+        </tbody>
+    </table>
+
+
+    <nav class="navbar navbar-light" style="background-color: darkorange"></nav>
+
+    @if (propriedades.Count > 0)
+    {
+        <h4>Total: R$ @FormatValue(@valorTotal)</h4>
+    }
+
+    <nav class="navbar navbar-light" style="background-color: darkorange"></nav>
+
+</div>
+
+@code {
+    private string Descricao = "";
+    private Double? Valor = 0;
+    private string cpfPesquisa = "";
+    private Double valorTotal = 0;
+    private Pessoa pessoa = new Pessoa();
+    private List<Pessoa> listPessoas = new List<Pessoa>();
+
+    private List<Propriedade> propriedades = new List<Propriedade>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        listPessoas = await pessoaService.GetPessoas();
+    }
+
+    private async Task SelecionarPessoas(ChangeEventArgs e)
+    {
+        cpfPesquisa = e.Value.ToString();
+
+        pessoa = await pessoaService.GetPessoaByCpf(cpfPesquisa);
+
+        if (pessoa != null)
+        {
+            propriedades = pessoa.Propriedades;
+        }
+
+        Descricao = propriedades.OrderByDescending(x => x.Valor).FirstOrDefault().Descricao;
+        Valor = propriedades.OrderByDescending(x => x.Valor).FirstOrDefault().Valor;
+
+        TotalBens();
+    }
+
+    private void TotalBens()
+    {
+        valorTotal = 0;
+
+        foreach (var item in propriedades)
+        {
+            if (item.Valor.HasValue)
+            {
+                valorTotal += item.Valor.Value;
+            }
+        }
+    }
+
+    private void Limpar()
+    {
+        pessoa = new Pessoa();
+        propriedades = new List<Propriedade>();
+        cpfPesquisa = "";
+    }
+
+    private string FormatValue(double value)
+    {
+        return value.ToString("N2");
+    }
+}
