@@ -1,11 +1,11 @@
-@page "/cadastro-veiculos"
+@page "/consulta-maior-multa"
 @using LearningBlazor.Models;
 @using LearningBlazor.Services;
 @inject VeiculoController veiculoController;
 @inject MultaController multaController;
 @inject NavigationManager navegacao;
 
-<h3>CONSULTA DE VEÍCULOS</h3>
+<h3>CONSULTA DE MAIOR MULTA</h3>
 
 <div class="container">
   <nav class="navbar navbar-light" style="background-color: white"></nav>
@@ -67,11 +67,11 @@
       </tr>
     </thead>
     <tbody>
-      @foreach (var multa in listaMultas)
+      @if (Descricao != null && Valor != null)
       {
         <tr>
-          <td>@multa.Descricao</td>
-          <td>R$ @FormatValue(@multa.ValorMulta.Value)</td>
+          <td>@Descricao</td>
+          <td>R$ @FormatValue(@Valor!.Value)</td>
         </tr>
       }
     </tbody>
@@ -89,10 +89,14 @@
 @code {
   List<Veiculo> listaVeiculos = new List<Veiculo>();
   List<Multa> listaMultas = new List<Multa>();
+
   Veiculo veiculo = new Veiculo();
-  private bool campoBloqueado = false;
+  private bool campoBloqueado = true;
 
   private decimal valorTotal => listaMultas.Sum(x => x.ValorMulta.Value);
+
+  private string? Descricao { get; set; } = null;
+  private decimal? Valor { get; set; } = null;
 
   protected override async Task OnInitializedAsync()
   {
@@ -104,13 +108,18 @@
     var id = Convert.ToInt32(e.Value);
     veiculo = listaVeiculos.FirstOrDefault(x => x.Id == id);
     listaMultas = veiculo.Multas.ToList();
+
+    Descricao = listaMultas.OrderByDescending(x => x.ValorMulta).FirstOrDefault().Descricao;
+    Valor = listaMultas.OrderByDescending(x => x.ValorMulta).FirstOrDefault().ValorMulta.Value;
   }
 
   private void NovoRegistro()
   {
     veiculo = new Veiculo();
     listaMultas = new List<Multa>();
-    campoBloqueado = false;
+    campoBloqueado = true;
+    Descricao = null;
+    Valor = null;
   }
 
   private void Cancelar()

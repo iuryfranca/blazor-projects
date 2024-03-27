@@ -1,11 +1,11 @@
-@page "/cadastro-veiculos"
+@page "/cadastro-multas"
 @using LearningBlazor.Models;
 @using LearningBlazor.Services;
 @inject VeiculoController veiculoController;
 @inject MultaController multaController;
 @inject NavigationManager navegacao;
 
-<h3>CONSULTA DE VEÍCULOS</h3>
+<h3>REGISTRO DE MULTAS DE VEÍCULOS COM CADASTRO</h3>
 
 <div class="container">
   <nav class="navbar navbar-light" style="background-color: white"></nav>
@@ -48,16 +48,34 @@
 
   <nav class="navbar navbar-light" style="background-color: white"></nav>
 
-
-  <button type="button" class="btn btn-warning" @onclick="Cancelar">CANCELAR</button>
+  <div class="mb-3">
+    <label for="exampleFormControlInput1" class="form-label">DESCRIÇÃO:</label>
+    <input @bind="@Descricao" type="text" class="form-control" id="exampleFormControlInput1" disable="@campoBloqueado">
+  </div>
+  <div class="mb-3">
+    <label for="exampleFormControlInput1" class="form-label">VALOR :</label>
+    <input @bind="@ValorMulta" type="number" class="form-control" id="exampleFormControlInput1"
+      disable="@campoBloqueado">
+  </div>
+  @if (enabledButton)
+  {
+    <button type="button" class="btn btn-primary" @onclick="AdicionarMulta">ADICIONAR</button>
+    <button type="button" class="btn btn-warning" @onclick="Cancelar">CANCELAR</button>
+    <button type="button" class="btn btn-success" @onclick="SalvarMulta">SALVAR</button>
+  }
+  else
+  {
+    <div class="alert alert-success" role="alert">
+      Salvo com Sucesso;
+    </div>
+    <button type="button" class="btn btn-primary">NOVO REGISTRO</button>
+  }
 
   <nav class="navbar navbar-light" style="background-color: white"></nav>
 
   <nav class="navbar navbar-light" style="background-color: darkgreen"></nav>
 
   <nav class="navbar navbar-light" style="background-color: white"></nav>
-
-
 
   <table class="table">
     <thead>
@@ -76,23 +94,17 @@
       }
     </tbody>
   </table>
-
-  @if (listaMultas.Count > 0)
-  {
-    <nav class="navbar navbar-light" style="background-color: darkorange"></nav>
-    <h4>Total: R$ @FormatValue(@valorTotal)</h4>
-    <nav class="navbar navbar-light" style="background-color: darkorange"></nav>
-  }
 </div>
 
 
 @code {
-  List<Veiculo> listaVeiculos = new List<Veiculo>();
   List<Multa> listaMultas = new List<Multa>();
+  List<Veiculo> listaVeiculos = new List<Veiculo>();
   Veiculo veiculo = new Veiculo();
+  public string Descricao { get; set; }
+  public decimal ValorMulta { get; set; }
   private bool campoBloqueado = false;
-
-  private decimal valorTotal => listaMultas.Sum(x => x.ValorMulta.Value);
+  private bool enabledButton = true;
 
   protected override async Task OnInitializedAsync()
   {
@@ -106,10 +118,39 @@
     listaMultas = veiculo.Multas.ToList();
   }
 
+  private void AdicionarMulta()
+  {
+    Multa multa = new Multa();
+    multa.Descricao = Descricao;
+    multa.ValorMulta = ValorMulta;
+    multa.Veiculo = veiculo;
+
+    listaMultas.Add(multa);
+
+    Descricao = string.Empty;
+    ValorMulta = 0;
+  }
+
+  private async Task SalvarMulta()
+  {
+    var listaMultaBd = await multaController.GetMultas();
+    var listaMultasToSave = listaMultas.Where(x => !listaMultaBd.Any(y => y.Descricao == x.Descricao)).ToList();
+
+    await multaController.AddRangeMultas(listaMultasToSave);
+    enabledButton = false;
+    campoBloqueado = true;
+  }
+
   private void NovoRegistro()
   {
+    listaMultas.Clear();
+    listaVeiculos.Clear();
     veiculo = new Veiculo();
-    listaMultas = new List<Multa>();
+
+    Descricao = string.Empty;
+    ValorMulta = 0;
+
+    enabledButton = true;
     campoBloqueado = false;
   }
 

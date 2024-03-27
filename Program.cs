@@ -2,7 +2,6 @@ using LearningBlazor.Context;
 using LearningBlazor.Data;
 using LearningBlazor.Services;
 using Microsoft.EntityFrameworkCore;
-using MySql.Data.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,13 +11,15 @@ builder.Services.AddServerSideBlazor();
 builder.Services.AddSingleton<WeatherForecastService>();
 
 // Injeção de dependências
-builder.Services.AddScoped<PessoaService>();
-builder.Services.AddScoped<PropriedadeService>();
+builder.Services.AddScoped<VeiculoController>();
+builder.Services.AddScoped<MultaController>();
 
-string mySqlConnectionStr = builder.Configuration.GetConnectionString("DefaultConnection");
-builder.Services.AddDbContextPool<ContextDB>(options =>
-    options.UseMySql(mySqlConnectionStr, ServerVersion.AutoDetect(mySqlConnectionStr))
-);
+builder
+    .Services.AddEntityFrameworkNpgsql()
+    .AddDbContext<ContextDB>(options =>
+    {
+        options.UseNpgsql(builder.Configuration.GetConnectionString("ConexaoPostgreSQL"));
+    });
 
 var app = builder.Build();
 

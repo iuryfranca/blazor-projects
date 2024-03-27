@@ -1,0 +1,248 @@
+﻿@page "/consulta-multas-filtros"
+@using LearningBlazor.Models;
+@using LearningBlazor.Services;
+@using Microsoft.AspNetCore.Components.Forms;
+@inject VeiculoController veiculoService;
+@inject MultaController multaService;
+@inject NavigationManager navegacao;
+
+<h3>Consulta de Multas com Filtros</h3>
+
+<div class="container" style="display: flex; flex-direction: column; gap: 16px; padding: 0 50px 100px 50px">
+  <nav class="navbar navbar-light" style="background-color: darkgreen"></nav>
+
+  <label for="veiculo" class="form-label">CARROS CADASTRADOS:</label>
+  <select class="form-select" aria-label="Selecione um carro" @onchange="SelecionarVeiculo">
+    <option selected>Selecione uma placa</option>
+    @foreach (var item in listaVeiculos)
+    {
+      <option value=@item.Id>@item.Modelo</option>
+    }
+  </select>
+
+  <div>
+    <div class="form-check">
+      <InputCheckbox id="idPropertyName" class="form-check-input" @bind-Value="@ExibirFiltroValor"
+        @onclick="LimpaCampoCheckbox" />
+      <label class="form-check-label" for="idPropertyName">Exibir filtro de Valores</label>
+    </div>
+    <div class="form-check">
+      <InputCheckbox id="idPropertyName" class="form-check-input" @bind-Value="@ExibirFiltroDescricao"
+        @onclick="LimpaCampoCheckbox" />
+      <label class="form-check-label" for="idPropertyName">Exibir filtro de Descrição</label>
+    </div>
+  </div>
+
+  <div class="mb-3">
+    <label for="exampleFormControlInput1" class="form-label">Filtrar bens acima do valor informado:</label>
+    <input @bind="filtroValor" type="number" class="form-control" disabled="@(!ExibirFiltroValor)" />
+  </div>
+
+  <div class=" mb-3">
+    <label for="exampleFormControlInput1" class="form-label">Filtrar bens pela descrição:</label>
+    <input @bind="filtroDescricao" type="text" class="form-control" disabled="@(!ExibirFiltroDescricao)">
+  </div>
+
+  <div style="width: 100%; display: flex; flex-direction: row; gap: 16px;">
+    <button type="button" class="btn btn-success" style="width: 100%;" @onclick="FiltrarBens">Filtrar</button>
+
+    <button type="button" class="btn btn-primary" style="width: 100%;" @onclick="Limpar">Limpar</button>
+  </div>
+
+
+  <nav class="navbar navbar-light" style="background-color: darkgreen"></nav>
+  <div class="mb-3">
+    <label for="exampleFormControlInput1" class="form-label">MODELO:</label>
+    <input @bind="@veiculo.Modelo" type="text" class="form-control" id="exampleFormControlInput1"
+      disable="@campoBloqueado">
+  </div>
+
+  <nav class="navbar navbar-light" style="background-color: darkorange"></nav>
+
+
+  <h4 style="text-align:center">Multas Cadastrados</h4>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Descrição:</th>
+        <th>Valor:</th>
+      </tr>
+    </thead>
+    <tbody>
+      @foreach (var multa in listaMultasFiltrada)
+      {
+        <tr>
+          <td>@multa.Descricao</td>
+          <td>R$ @FormatValue(@multa.ValorMulta.Value)</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+
+
+
+  @if (listaMultas.Count > 0)
+  {
+    <nav class="navbar navbar-light" style="background-color: darkorange"></nav>
+    <h5>Total Multas Filtradas: R$ @FormatValue(@valorTotalBensFiltrados)</h5>
+    <h4>Total: R$ @FormatValue(@valorTotal)</h4>
+    <nav class="navbar navbar-light" style="background-color: darkorange"></nav>
+  }
+
+
+</div>
+
+@code {
+  private bool campoBloqueado = false;
+
+  private decimal valorTotal => listaMultas.Sum(x => x.ValorMulta.Value);
+  private decimal filtroValor = 0;
+  private string filtroDescricao = "";
+  private decimal valorTotalBensFiltrados
+  {
+    get
+    {
+      decimal total = 0;
+
+      foreach (var item in listaMultasFiltrada)
+      {
+        if (item.ValorMulta.HasValue)
+        {
+          total += item.ValorMulta.Value;
+        }
+      }
+
+      return total;
+    }
+  }
+
+  private bool ExibirFiltroValor { get; set; } = true;
+  private bool ExibirFiltroDescricao { get; set; } = true;
+
+  List<Veiculo> listaVeiculos = new List<Veiculo>();
+  List<Multa> listaMultas = new List<Multa>();
+  Veiculo veiculo = new Veiculo();
+  private List<Multa> listaMultasFiltrada = new List<Multa>();
+
+  protected override async Task OnInitializedAsync()
+  {
+    listaVeiculos = await veiculoService.GetVeiculos();
+  }
+
+  private void SelecionarVeiculo(ChangeEventArgs e)
+  {
+    var id = Convert.ToInt32(e.Value);
+    veiculo = listaVeiculos.FirstOrDefault(x => x.Id == id);
+    listaMultas = veiculo.Multas.ToList();
+
+    listaMultasFiltrada = veiculo.Multas.ToList();
+  }
+
+
+  private void LimpaCampoCheckbox()
+  {
+    if (ExibirFiltroValor && filtroValor > 0)
+    {
+      filtroValor = 0;
+    }
+
+    if (ExibirFiltroDescricao && !string.IsNullOrEmpty(filtroDescricao))
+    {
+      filtroDescricao = "";
+    }
+
+    FiltrarBens();
+  }
+
+  private async void FiltrarBens()
+  {
+    if (ExibirFiltroValor && ExibirFiltroDescricao)
+    {
+      await FiltroValorEDescricaoPeloBanco();
+      return;
+    }
+
+    if (ExibirFiltroValor)
+    {
+      await FiltroValorPeloBanco();
+      return;
+    }
+
+    if (ExibirFiltroDescricao)
+    {
+      await FiltroDescricaoPeloBanco();
+      return;
+    }
+
+  }
+
+  private async Task FiltroValorPeloBanco()
+  {
+    if (filtroValor >= 0)
+    {
+      listaMultasFiltrada = await multaService.FilterByValue(filtroValor, veiculo.Id);
+
+      // Função usada para falar pro BLazor que é para ele atualizar a pagina
+      // Eu estava com um problema que por pegar os dados pelo banco de ser async, ele nao estava atualizando
+      // Então eu chamo essa função para ele atualizar a pagina
+      StateHasChanged();
+    }
+  }
+
+
+  private async Task FiltroDescricaoPeloBanco()
+  {
+    if (!string.IsNullOrEmpty(filtroDescricao))
+    {
+      listaMultasFiltrada = await multaService.FilterByDescription(filtroDescricao, veiculo.Id);
+
+      // Função usada para falar pro BLazor que é para ele atualizar a pagina
+      // Eu estava com um problema que por pegar os dados pelo banco de ser async, ele nao estava atualizando
+      // Então eu chamo essa função para ele atualizar a pagina
+      StateHasChanged();
+    }
+  }
+
+  private async Task FiltroValorEDescricaoPeloBanco()
+  {
+    if (filtroValor >= 0 && !string.IsNullOrEmpty(filtroDescricao))
+    {
+      listaMultasFiltrada = await multaService.FilterByValueAndDescription(filtroValor, filtroDescricao, veiculo.Id);
+
+      // Função usada para falar pro BLazor que é para ele atualizar a pagina
+      // Eu estava com um problema que por pegar os dados pelo banco de ser async, ele nao estava atualizando
+      // Então eu chamo essa função para ele atualizar a pagina
+      StateHasChanged();
+    }
+    else if (filtroValor >= 0)
+    {
+      await FiltroValorPeloBanco();
+    }
+    else if (!string.IsNullOrEmpty(filtroDescricao))
+    {
+      await FiltroDescricaoPeloBanco();
+    }
+  }
+
+
+
+  private void NovoRegistro()
+  {
+    listaMultas.Clear();
+    listaVeiculos.Clear();
+    veiculo = new Veiculo();
+
+    listaVeiculos = veiculoService.GetVeiculos().Result;
+
+    campoBloqueado = false;
+  }
+
+  private void Limpar()
+  {
+    NovoRegistro();
+  }
+  private string FormatValue(decimal value)
+  {
+    return value.ToString("N2");
+  }
+}

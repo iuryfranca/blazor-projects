@@ -8,6 +8,6 @@ public class ContextDB : DbContext
     public ContextDB(DbContextOptions<ContextDB> options)
         : base(options) { }
 
-    public DbSet<Pessoa>? Pessoas { get; set; }
-    public DbSet<Propriedade>? Propriedades { get; set; }
+    public DbSet<Veiculo> Veiculos { get; set; }
+    public DbSet<Multa> Multas { get; set; }
 }

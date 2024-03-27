@@ -1,163 +1,130 @@
 ﻿@page "/cadastro"
 @using LearningBlazor.Models;
 @using LearningBlazor.Services;
-@inject PessoaService pessoaService;
+@inject VeiculoController veiculoController;
 @inject NavigationManager navegacao;
 
-<h3>Cadastro</h3>
+<h3>PRIMEIRO REGISTRO DE MULTA DO VEÍCULO</h3>
 
 <div class="container">
-    <nav class=" navbar-light" style="background-color: darkgreen; height: 5px;"></nav>
-    <h5 style="margin: 0;">Pessoa</h5>
-    <nav class=" navbar-light" style="background-color: darkgreen; height: 5px; margin-bottom: 20px;"></nav>
-
+    <div class="mb-3">
+        <label for="exampleFormControlInput1" class="form-label">MODELO:</label>
+        <input @bind="@veiculo.Modelo" type="text" class="form-control" disabled="@campoBloqueado">
+    </div>
 
     <div class="mb-3">
-        <label for="exampleFormControlInput1" class="form-label">NOME:</label>
-        <input @bind="pessoa.Nome" class="form-control" id="exampleFormControlInput1" disabled="@campoBloqueado">
-    </div>
-    <div class="row align-items-start">
-        <div class="col">
-            <div class="mb-3">
-                <label for="exampleFormControlInput1" class="form-label">CPF:</label>
-                <input @bind="pessoa.Cpf" type="text" class="form-control" id="exampleFormControlInput2"
-                    disabled="@campoBloqueado">
-            </div>
-        </div>
-        <div class="col">
-            <div class="mb-3">
-                <label for="exampleFormControlInput1" class="form-label">DATA DE NASCIMENTO:</label>
-                <input @bind="pessoa.DataNasc" type="date" class="form-control" id="exampleFormControlInput2"
-                    disabled="@campoBloqueado">
-            </div>
-        </div>
-        <div class="col">
-            <div class="mb-3">
-                <label for="exampleFormControlInput1" class="form-label">TELEFONE:</label>
-                <input @bind="pessoa.Telefone" type="tel" class="form-control" id="exampleFormControlInput2"
-                    disabled="@campoBloqueado">
-            </div>
-        </div>
+        <label for="exampleFormControlInput1" class="form-label">MARCA:</label>
+        <input @bind="@veiculo.Marca" type="text" class="form-control" disabled="@campoBloqueado">
     </div>
 
-    <nav class=" navbar-light" style="background-color: darkgreen; height: 5px;"></nav>
-    <h5 style="margin: 0;">Bens</h5>
-    <nav class=" navbar-light" style="background-color: darkgreen; height: 5px; margin-bottom: 20px;"></nav>
-
-    <div class="row align-items-start">
-        <div class="col">
-            <div class="mb-3">
-                <label for="exampleFormControlInput1" class="form-label">DESCRIÇÃO:</label>
-                <input @bind="Descricao" type="text" class="form-control" id="exampleFormControlInput1"
-                    disabled="@campoBloqueado">
-            </div>
-
-        </div>
-        <div class="col">
-            <div class="mb-3">
-                <label for="exampleFormControlInput1" class="form-label">VALOR:</label>
-                <input @bind="Valor" type="number" class="form-control" id="exampleFormControlInput1"
-                    disabled="@campoBloqueado">
-            </div>
-        </div>
+    <div class="mb-3">
+        <label for="exampleFormControlInput1" class="form-label">PLACA:</label>
+        <input @bind="@veiculo.Placa" type="text" class="form-control" disabled="@campoBloqueado">
     </div>
+    <nav class="navbar navbar-light" style="background-color: white"></nav>
 
-    <nav class="navbar navbar-light" style="background-color: darkorange; margin-bottom: 20px;"></nav>
-    @if (novo == false)
-    {
-        <button type="button" class="btn btn-warning" @onclick="CreatePropriedade">ADD BENS</button>
-    }
+    <nav class="navbar navbar-light" style="background-color: darkgreen"></nav>
 
     <nav class="navbar navbar-light" style="background-color: white"></nav>
-    @if (novo)
+    @*###################################################################*@
+    <div class="mb-3">
+        <label for="exampleFormControlInput1" class="form-label">DESCRIÇÃO:</label>
+        <input @bind="@Descricao" type="text" class="form-control" disabled="@campoBloqueado">
+    </div>
+    <div class="mb-3">
+        <label for="exampleFormControlInput1" class="form-label">VALOR :</label>
+        <input @bind="@ValorMulta" type="number" class="form-control" disabled="@campoBloqueado">
+    </div>
+    @if (enabledButton)
+    {
+        <button type="button" class="btn btn-primary" @onclick="AdicionarMulta">ADICIONAR</button>
+        <button type="button" class="btn btn-warning" @onclick="Cancelar">CANCELAR</button>
+        <button type="button" class="btn btn-success" @onclick="Salvar">SALVAR</button>
+    }
+    else
     {
         <div class="alert alert-success" role="alert">
             Salvo com Sucesso;
         </div>
-        <button type="button" class="btn btn-primary" @onclick="NovoRegistro">NOVO REGISTRO</button>
+        <button type="button" class="btn btn-primary">NOVO REGISTRO</button>
     }
+
     <nav class="navbar navbar-light" style="background-color: white"></nav>
+
     <nav class="navbar navbar-light" style="background-color: darkgreen"></nav>
-    <h4 style="text-align:center">Bens Cadastrados</h4>
+
+    <nav class="navbar navbar-light" style="background-color: white"></nav>
+
     <table class="table">
         <thead>
             <tr>
-                <th>Descrição</th>
-                <th>Valor</th>
+                <th>Descrição:</th>
+                <th>Valor:</th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var item in propriedades)
+            @foreach (var multa in multas)
             {
                 <tr>
-                    <td>@item.Descricao</td>
-                    <td>R$ @FormatValue(@item.Valor.Value)</td>
+                    <td>@multa.Descricao</td>
+                    <td>R$ @FormatValue(@multa.ValorMulta.Value)</td>
                 </tr>
             }
         </tbody>
     </table>
-
-    @if (novo == false)
-    {
-        <button type="button" class="btn btn-success" @onclick="Salvar">SALVAR</button>
-        <button type="button" class="btn btn-primary" @onclick="Cancelar">CANCELAR</button>
-    }
-
 </div>
 
 @code {
-    private string? Descricao { get; set; }
-    private Double? Valor { get; set; }
-
+    public string Descricao { get; set; }
+    public decimal ValorMulta { get; set; }
     private bool campoBloqueado = false;
-    private bool novo = false;
+    private bool enabledButton = true;
+    private Veiculo veiculo = new Veiculo();
+    private List<Multa> multas = new List<Multa>();
 
-    private Pessoa pessoa = new Pessoa();
-    private List<Propriedade> propriedades = new List<Propriedade>();
-
-    private void CreatePropriedade()
+    public void AdicionarMulta()
     {
-        var propriedade = new Propriedade();
-        propriedade.Descricao = Descricao;
-        propriedade.Valor = Valor;
+        Multa multa = new Multa();
+        multa.Descricao = Descricao;
+        multa.ValorMulta = ValorMulta;
+        multas.Add(multa);
 
-        propriedades.Add(propriedade);
-
-        Descricao = null;
-        Valor = null;
+        Descricao = string.Empty;
+        ValorMulta = 0;
     }
 
-    private async Task Salvar()
+    public async Task Salvar()
     {
-        pessoa.Propriedades = propriedades;
+        veiculo.Multas = multas;
+        await veiculoController.CreateVeiculo(veiculo);
 
-        pessoa.DataNasc = pessoa.DataNasc.Value.ToUniversalTime();
-
-        await pessoaService.CreatePessoa(pessoa);
-
-        novo = true;
+        enabledButton = false;
         campoBloqueado = true;
     }
 
-    private void NovoRegistro()
+    public void Cancelar()
     {
-        novo = false;
+        enabledButton = false;
+        campoBloqueado = true;
+
+        Descricao = string.Empty;
+        ValorMulta = 0;
+        veiculo = new Veiculo();
+        multas = new List<Multa>();
+    }
+
+    public void NovoRegistro()
+    {
+        enabledButton = true;
         campoBloqueado = false;
-        pessoa = new Pessoa();
-        propriedades = new List<Propriedade>();
 
+        Descricao = string.Empty;
+        ValorMulta = 0;
+        veiculo = new Veiculo();
+        multas = new List<Multa>();
     }
 
-    private void Cancelar()
-    {
-        pessoa = new Pessoa();
-
-        Descricao = null;
-        Valor = null;
-        propriedades = new List<Propriedade>();
-    }
-
-    private string FormatValue(double value)
+    private string FormatValue(decimal value)
     {
         return value.ToString("N2");
     }
