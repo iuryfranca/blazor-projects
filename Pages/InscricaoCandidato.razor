@@ -1,0 +1,153 @@
+﻿@page "/inscricao"
+@using LearningBlazor.Models;
+@using LearningBlazor.Controllers;
+@inject InscricaoController inscricaoController;
+@inject CargoController cargoController;
+@inject CandidatoController candidatoController;
+@inject NavigationManager navegacao;
+
+<h3>INSCRIÇÃO DE CANDIDATO</h3>
+
+<div class="container">
+  <nav class="navbar navbar-light" style="background-color: white"></nav>
+
+  <nav class="navbar navbar-light" style="background-color: darkgreen"></nav>
+  <div class="row align-items-start">
+    <div class="col">
+      <label for="veiculo" class="form-label">CARGOS:</label>
+      <select @onchange="SelecionarCargos" class="form-select" aria-label="Selecione um Cargo">
+        <option selected>Selecione uma placa</option>
+        @foreach (var item in listCargos)
+        {
+          <option value=@item.Id>@item.NomeCargo</option>
+        }
+      </select>
+    </div>
+    <div class="col">
+      <div class="form-group">
+        <label for="input-datalist">Selecionar Candidato</label>
+        <input type="text" class="form-control" placeholder="Buscar" list="lista-pessoas"
+          @onchange="SelecionarCandidatos">
+        <datalist id="lista-pessoas">
+          @foreach (var item in listCandidatos)
+          {
+            <option value="@item.Cpf">@item.Nome</option>
+          }
+
+        </datalist>
+      </div>
+    </div>
+  </div>
+
+  <nav class="navbar navbar-light" style="background-color: white"></nav>
+
+  <nav class="navbar navbar-light" style="background-color: darkgreen"></nav>
+  <div class="row align-items-start">
+    <div class="col">
+      <div class="mb-3">
+        <label for="exampleFormControlInput1" class="form-label">NOME:</label>
+        <input @bind="candidato.Nome" type="text" class="form-control" id="exampleFormControlInput1">
+      </div>
+    </div>
+    <div class="col">
+      <div class="mb-3">
+        <label for="exampleFormControlInput1" class="form-label">CPF:</label>
+        <input @bind="candidato.Cpf" type="text" class="form-control" id="exampleFormControlInput1">
+      </div>
+    </div>
+    <div class="col">
+      <div class="mb-3">
+        <label for="exampleFormControlInput1" class="form-label">CARGO:</label>
+        <input @bind="cargo.NomeCargo" type="text" class="form-control" id="exampleFormControlInput1">
+      </div>
+    </div>
+
+  </div>
+
+  <nav class="navbar navbar-light" style="background-color: white"></nav>
+
+  <nav class="navbar navbar-light" style="background-color: darkgreen"></nav>
+
+  <nav class="navbar navbar-light" style="background-color: white"></nav>
+  @if (enabledButton)
+  {
+    <button type="button" class="btn btn-warning" @onclick="Cancelar">CANCELAR</button>
+    <button type="button" class="btn btn-success" @onclick="Salvar">SALVAR</button>
+  }
+  else
+  {
+    <div class="alert alert-success" role="alert">
+      Inscrição realizada com sucesso! (Número: @numeroInsc);
+    </div>
+    <button type="button" class="btn btn-primary" @onclick="NovaInscricao">NOVA INSCRIÇÃO</button>
+  }
+</div>
+
+@code {
+  private List<Cargo> listCargos = new List<Cargo>();
+  private List<Candidato> listCandidatos = new List<Candidato>();
+
+  private Cargo cargo = new Cargo();
+  private Candidato candidato = new Candidato();
+
+  private bool enabledButton = true;
+  private int numeroInsc = 0;
+
+  protected override async Task OnInitializedAsync()
+  {
+    var listCargosInit = await cargoController.GetCargos();
+    var listCandidatosInit = await candidatoController.GetCandidatos();
+    var listInscricoes = await inscricaoController.GetInscricoes();
+
+    if (listInscricoes.Count > 0)
+    {
+      numeroInsc = 1000 + listInscricoes.Count + 1;
+    }
+
+    if (listCargos != null)
+    {
+      listCargos = listCargosInit;
+    }
+
+    if (listCandidatos != null)
+    {
+      listCandidatos = listCandidatosInit;
+    }
+  }
+
+  private void SelecionarCandidatos(ChangeEventArgs e)
+  {
+    var cpf = e.Value.ToString();
+    candidato = listCandidatos.FirstOrDefault(x => x.Cpf == cpf);
+  }
+
+  private void SelecionarCargos(ChangeEventArgs e)
+  {
+    var id = Convert.ToInt32(e.Value);
+    cargo = listCargos.FirstOrDefault(x => x.Id == id);
+  }
+
+  private void NovaInscricao()
+  {
+    navegacao.NavigateTo("/inscricao");
+  }
+
+  private async Task Salvar()
+  {
+    Inscricao inscricao = new Inscricao();
+    inscricao.DataInscricao = DateTime.Today;
+    inscricao.NumeroInsc = numeroInsc;
+    inscricao.Candidato = candidato;
+    inscricao.Cargo = cargo;
+
+    await inscricaoController.CreateInscricao(inscricao);
+    enabledButton = false;
+  }
+
+  private void Cancelar()
+  {
+    navegacao.NavigateTo("/inscricao", forceLoad: true);
+  }
+
+
+}
