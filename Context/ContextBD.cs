@@ -1,13 +1,15 @@
 using LearningBlazor.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace LearningBlazor.Context
-{
-    public class ContextBD : DbContext
-    {
-        public ContextBD(DbContextOptions<ContextBD> options)
-            : base(options) { }
+namespace LearningBlazor.Context;
 
-        public DbSet<Pessoa> Pessoas { get; set; }
-    }
+public class ContextDB : DbContext
+{
+    public ContextDB(DbContextOptions<ContextDB> options)
+        : base(options) { }
+
+    public DbSet<Candidato> Candidatos { get; set; }
+    public DbSet<Cargo> Cargos { get; set; }
+
+    public DbSet<Inscricao> Inscricoes { get; set; }
 }

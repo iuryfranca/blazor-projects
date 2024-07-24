@@ -1,5 +1,5 @@
+using AppConcurso.Data;
 using LearningBlazor.Context;
-using LearningBlazor.Data;
 using LearningBlazor.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
@@ -11,13 +11,21 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddSingleton<WeatherForecastService>();
-builder.Services.AddScoped<PessoaService>();
 
-builder
-    .Services.AddEntityFrameworkNpgsql()
-    .AddDbContext<ContextBD>(opt =>
-        opt.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
-    );
+// Add services to the container.
+builder.Services.AddRazorPages();
+builder.Services.AddServerSideBlazor();
+builder.Services.AddSingleton<WeatherForecastService>();
+
+// Injeção de dependências
+builder.Services.AddScoped<CargoService>();
+builder.Services.AddScoped<CandidatoService>();
+builder.Services.AddScoped<InscricaoService>();
+
+string mySqlConnectionStr = builder.Configuration.GetConnectionString("DefaultConnection");
+builder.Services.AddDbContextPool<ContextDB>(options =>
+    options.UseMySql(mySqlConnectionStr, ServerVersion.AutoDetect(mySqlConnectionStr))
+);
 
 var app = builder.Build();
 
@@ -29,7 +37,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-// app.UseHttpsRedirection();
+app.UseHttpsRedirection();
 
 app.UseStaticFiles();
 
