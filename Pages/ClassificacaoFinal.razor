@@ -1,0 +1,218 @@
+﻿@page "/classificacao-final"
+@using LearningBlazor.Models;
+@using LearningBlazor.Services;
+@inject CargoService cargoService;
+@inject CandidatoService candidatoService;
+@inject InscricaoService inscricaoService;
+@inject NavigationManager navegacao;
+
+<h3>Classsificação Final</h3>
+
+<div class="container">
+    <nav class="navbar navbar-light" style="background-color: white"></nav>
+
+    <nav class="navbar navbar-light" style="background-color: darkgreen"></nav>
+    <div class="row align-items-start">
+        <div class="col">
+            <div class="form-group">
+                <label for="veiculo" class="form-label">Cargos:</label>
+                <select @onchange="SelecionarCargos" class="form-select" aria-label="Selecione um Cargo">
+                    <option selected>Selecione um cargo</option>
+                    @foreach (var item in listCargos)
+                    {
+                        <option value=@item.Id>@item.NomeCargo</option>
+                    }
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <nav class="navbar navbar-light" style="background-color: white"></nav>
+    <nav class="navbar navbar-light" style="background-color: darkgreen"></nav>
+
+    <h4 style="text-align:center">Resultado Preliminar</h4>
+    @if (naoExisteInscricao)
+    {
+        <div class="alert alert-success" role="alert">
+            Não existe inscrição para este cargo.
+        </div>
+    }
+    else
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">Nome</th>
+                    <th scope="col">CPF</th>
+                    <th scope="col">Data de Nascimento</th>
+                    <th scope="col">Número de Inscrição</th>
+                    <th scope="col">Nota Conhecimentos Gerais</th>
+                    <th scope="col">Nota Conhecimentos Específicos</th>
+                    <th scope="col">Média de Notas</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var candidato in listaCandidatosPorCargo)
+                {
+                    <tr>
+                        <td>@candidato.Nome</td>
+                        <td>@candidato.Cpf</td>
+                        <td>@candidato.DataNascimento</td>
+                        <td>@candidato.NumeroInsc</td>
+                        <td>@candidato.NotaConhGerais</td>
+                        <td>@candidato.NotaConhEspecificos</td>
+                        <td>@candidato.MediaDeNotas</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+
+
+@code {
+    private Cargo cargo = new Cargo();
+    private List<Cargo> listCargos = new List<Cargo>();
+    private Candidato candidato = new Candidato();
+    private List<CandidatoInscrito> listaCandidatosPorCargo = new List<CandidatoInscrito>();
+    private List<Inscricao> listaInscricoesByCargo = new List<Inscricao>();
+
+    private bool naoExisteInscricao = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        listCargos = await cargoService.GetCargos();
+    }
+
+    private async Task SelecionarCargos(ChangeEventArgs e)
+    {
+        if (e.Value.ToString() == "Selecione um cargo")
+        {
+            listaCandidatosPorCargo.Clear();
+            return;
+        }
+
+        naoExisteInscricao = false;
+
+        var id = Int32.Parse(e.Value.ToString());
+
+        cargo = await cargoService.GetCargoById(id);
+        listaInscricoesByCargo = await inscricaoService.GetInscricoesByCargoId(id);
+
+
+        if (listaInscricoesByCargo.Count == 0)
+        {
+            naoExisteInscricao = true;
+        }
+
+        var listaCandidatos = new List<CandidatoInscrito>();
+
+        foreach (var inscricao in listaInscricoesByCargo)
+        {
+            var candidato = await candidatoService.GetCandidatosById(inscricao.CandidatoId);
+            listaCandidatos.Add(new CandidatoInscrito()
+                {
+                    Nome = candidato.Nome,
+                    Cpf = candidato.Cpf,
+                    DataNascimento = candidato.DataNascimento,
+                    NumeroInsc = inscricao.NumeroInsc,
+                    DataInscricao = inscricao.DataInscricao,
+                    NotaConhGerais = inscricao.NotaConhGerais,
+                    NotaConhEspecificos = inscricao.NotaConhEspecificos,
+                    MediaDeNotas = (inscricao.NotaConhGerais + inscricao.NotaConhEspecificos) / 2
+                });
+        }
+
+        listaCandidatosPorCargo = listaCandidatos.OrderByDescending(x => x.MediaDeNotas).ToList();
+
+        // Tentando pegar os items com as medias iguais, mas não está funcionando ://
+        var listaCandidatosPorNotasRepetidas = listaCandidatosPorCargo.GroupBy(n => n.MediaDeNotas).Select(g => new
+        {
+            Media = g.Key,
+            Repeticao = g.Count(),
+            Candidato = g.ToList(),
+        });
+
+        var listaFinalClassificacao = new List<CandidatoInscrito>();
+
+        foreach (var candidatoPorNota in listaCandidatosPorNotasRepetidas)
+        {
+            if (candidatoPorNota.Repeticao > 1)
+            {
+
+                //Ordenando esse array com notas repetidas pela primeira verificação do questionario: Nota de Conhecimentos Específicos
+                var listaCandidatosPorNotasIguais = candidatoPorNota.Candidato.OrderByDescending(x => x.NotaConhEspecificos).ToList();
+
+                var listaCandidatosPorConhEspesRepetidos = listaCandidatosPorNotasIguais.GroupBy(n => n.NotaConhEspecificos).Select(g =>
+                new
+                {
+                    NotaConhEspecificos = g.Key,
+                    Repeticao = g.Count(),
+                    Candidato = g.ToList(),
+                });
+
+                foreach (var candidatoPorConhEspesRepetidos in listaCandidatosPorConhEspesRepetidos)
+                {
+                    Console.WriteLine("***Candidato: " + candidatoPorConhEspesRepetidos.NotaConhEspecificos + "Repetição: " + candidatoPorConhEspesRepetidos.Repeticao);
+                }
+
+                foreach (var candidatoPorConhEspesRepetidos in listaCandidatosPorConhEspesRepetidos)
+                {
+
+                    if (candidatoPorConhEspesRepetidos.Repeticao > 1)
+                    {
+                        // Ordenando esse array com notas repetidas pela segunda verificação do questionario: Nota de Conhecimentos Gerais
+                        var listaCandidatosPorNotasIguaisConhGerais = candidatoPorConhEspesRepetidos.Candidato.OrderByDescending(x =>
+                        x.NotaConhGerais).ToList();
+
+                        var listaCandidatosPorNotasIguaisConhGeraisRepetidos = listaCandidatosPorNotasIguaisConhGerais.GroupBy(n =>
+                        n.NotaConhGerais).Select(g => new
+                        {
+                            NotaConhGerais = g.Key,
+                            Repeticao = g.Count(),
+                            Candidato = g.ToList(),
+                        });
+
+                        foreach (var candidatoPorNotasIguaisConhGeraisRepetidos in listaCandidatosPorNotasIguaisConhGeraisRepetidos)
+                        {
+
+                            if (candidatoPorNotasIguaisConhGeraisRepetidos.Repeticao > 1)
+                            {
+                                // Ordenando esse array com notas repetidas pela terceira verificação do questionario: Data de Nascimento
+                                var listaCandidatosPorDataNascimento = candidatoPorNotasIguaisConhGeraisRepetidos.Candidato.OrderBy(x =>
+                                x.DataNascimento).ToList();
+
+                                foreach (var candidatoPorDataNascimento in listaCandidatosPorDataNascimento)
+                                {
+                                    listaFinalClassificacao.Add(candidatoPorDataNascimento);
+                                }
+                            }
+                            else
+                            {
+                                listaFinalClassificacao.Add(candidatoPorNota.Candidato[0]);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        //TODO: NMAO PODE SER O INDICE ZERO, TENHO QUE USAR UM INDEX OU ALGO PARA SABER QUANL VAI ENTRAR
+                        @* Console.WriteLine("***Candidato: " + candidatoPorNota.Candidato[0].Nome + "Nota: " + candidatoPorNota.Candidato[0].NotaConhEspecificos); *@
+                        listaFinalClassificacao.Add(candidatoPorNota.Candidato[0]);
+                    }
+
+                }
+            }
+            else
+            {
+                listaFinalClassificacao.Add(candidatoPorNota.Candidato[0]);
+            }
+        }
+
+        foreach (var candidato in listaFinalClassificacao)
+        {
+            Console.WriteLine("Nome: " + candidato.Nome + "Média Geral:" + candidato.MediaDeNotas + " --- " + " Nota Conhecimentos Gerais: " + candidato.NotaConhGerais +
+            " Nota Conhecimentos Específicos: " + candidato.NotaConhEspecificos + " Data de Nascimento: " +
+            candidato.DataNascimento);
+        }
+    }
+}

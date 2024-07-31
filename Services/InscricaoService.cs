@@ -30,6 +30,11 @@ public class InscricaoService
             ?? throw new Exception("Inscrição não encontrada");
     }
 
+    public async Task<List<Inscricao>> GetInscricoesByCargoId(int cargoId)
+    {
+        return await _context.Inscricoes.Where(p => p.CargoId == cargoId).ToListAsync();
+    }
+
     public async Task<Inscricao>? CreateInscricao(Inscricao inscricao)
     {
         await _context.Inscricoes.AddAsync(inscricao);

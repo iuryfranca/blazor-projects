@@ -9,22 +9,22 @@ public class Inscricao
     public int Id { get; set; }
 
     [Column("numero_insc")]
-    public string? NumeroInsc { get; set; }
+    public string NumeroInsc { get; set; }
 
     [Column("data_inscricao")]
-    public DateTime? DataInscricao { get; set; }
+    public DateTime DataInscricao { get; set; }
 
     [Column("nota_conh_gerais")]
-    public double? NotaConhGerais { get; set; }
+    public double NotaConhGerais { get; set; }
 
     [Column("nota_conh_especificos")]
-    public double? NotaConhEspecificos { get; set; }
+    public double NotaConhEspecificos { get; set; }
 
     [Column("candidato_id")]
-    public int? CandidatoId { get; set; }
+    public int CandidatoId { get; set; }
 
     [Column("cargo_id")]
-    public int? CargoId { get; set; }
+    public int CargoId { get; set; }
 
     // public Candidato Candidato { get; set; }
 

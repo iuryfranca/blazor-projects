@@ -19,7 +19,7 @@ public class CandidatoService
         return await _context.Candidatos.ToListAsync();
     }
 
-    public async Task<Candidato>? GetPessoaById(int id)
+    public async Task<Candidato>? GetCandidatosById(int id)
     {
         return await _context.Candidatos.FirstOrDefaultAsync(p => p.Id == id)
             ?? throw new Exception("Candidato não encontrado");
