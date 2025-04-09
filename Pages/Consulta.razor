@@ -1,0 +1,82 @@
+@page "/consulta"
+@using LearningBlazor.Models
+@using LearningBlazor.Services
+@inject PessoaService pessoaService
+@inject NavigationManager navigationManager
+
+<div class="container">
+  <nav class="navbar navbar-light" style="background-color: darkgreen"></nav>
+  
+  <h3>Consulta de Pessoas Cadastradas</h3>
+  
+  <nav class="navbar navbar-light" style="background-color: white"></nav>
+  
+  @if (pessoas == null)
+  {
+    <p><em>Carregando...</em></p>
+  }
+  else if (pessoas.Count == 0)
+  {
+    <div class="alert alert-info" role="alert">
+      Nenhum registro encontrado.
+    </div>
+  }
+  else
+  {
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nome</th>
+          <th>CPF</th>
+          <th>Data de Nascimento</th>
+          <th>Telefone</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        @foreach (var p in pessoas)
+        {
+          <tr>
+            <td>@p.Id</td>
+            <td>@p.Nome</td>
+            <td>@p.Cpf</td>
+            <td>@(p.DataNascimento.HasValue ? p.DataNascimento.Value.ToString("dd/MM/yyyy") : "-")</td>
+            <td>@(string.IsNullOrEmpty(p.Telefone) ? "-" : p.Telefone)</td>
+            <td>
+              <button class="btn btn-sm btn-primary" @onclick="() => EditarPessoa(p)">Editar</button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+
+  <nav class="navbar navbar-light" style="background-color: darkgreen"></nav>
+</div>
+
+@code {
+  private List<Pessoa> pessoas;
+
+  protected override async Task OnInitializedAsync()
+  {
+    await CarregarDados();
+  }
+
+  private async Task CarregarDados()
+  {
+    pessoas = await pessoaService.GetPessoas();
+  }
+
+  private void NovoCadastro()
+  {
+    navigationManager.NavigateTo("/cadastro");
+  }
+
+  private void EditarPessoa(Pessoa pessoa)
+  {
+    // Implementar edição no futuro
+    // Por enquanto apenas navega para a página de cadastro
+    navigationManager.NavigateTo("/cadastro");
+  }
+}

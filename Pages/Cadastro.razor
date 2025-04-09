@@ -41,6 +41,7 @@
   {
     <button type="button" class="btn btn-success" @onclick="Salvar">SALVAR</button>
     <button type="button" class="btn btn-primary" @onclick="NovoRegistro">CANCELAR</button>
+    <button type="button" class="btn btn-info" @onclick="VerConsulta">VER CADASTROS</button>
   }
 
 
@@ -67,7 +68,11 @@
 
   private async Task Salvar()
   {
-    pessoa.DataNascimento = pessoa.DataNascimento.Value.ToUniversalTime();
+    if (pessoa.DataNascimento.HasValue)
+    {
+      pessoa.DataNascimento = pessoa.DataNascimento.Value.ToUniversalTime();
+    }
+    
     await pessoaService.AddPessoa(pessoa);
     novo = true;
     campoBloqueado = true;
@@ -80,4 +85,8 @@
     pessoa = new Pessoa();
   }
 
+  private void VerConsulta()
+  {
+    navigationManager.NavigateTo("/consulta");
+  }
 }
