@@ -14,12 +14,10 @@ builder.Services.AddSingleton<WeatherForecastService>();
 builder.Services.AddScoped<VeiculoController>();
 builder.Services.AddScoped<MultaController>();
 
-builder
-    .Services.AddEntityFrameworkNpgsql()
-    .AddDbContext<ContextDB>(options =>
-    {
-        options.UseNpgsql(builder.Configuration.GetConnectionString("ConexaoPostgreSQL"));
-    });
+string mySqlConnectionStr = builder.Configuration.GetConnectionString("DefaultConnection");
+builder.Services.AddDbContextPool<ContextDB>(options =>
+    options.UseMySql(mySqlConnectionStr, ServerVersion.AutoDetect(mySqlConnectionStr))
+);
 
 var app = builder.Build();
 
