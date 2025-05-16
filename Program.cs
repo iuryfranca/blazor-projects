@@ -14,6 +14,7 @@ builder.Services.AddScoped<CandidatoService>();
 builder.Services.AddScoped<InscricaoService>();
 builder.Services.AddScoped<SideMenuService>();
 builder.Services.AddScoped<IFlowbiteService, FlowbiteService>();
+builder.Services.AddScoped<ToastService>();
 
 string mySqlConnectionStr = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContextPool<ContextDB>(options =>

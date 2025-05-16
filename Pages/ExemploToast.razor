@@ -1,0 +1,48 @@
+@page "/exemplo-toast"
+@using AppConcurso.Services
+@inject ToastService ToastService
+
+<PageTitle>Exemplo de Toast</PageTitle>
+
+<div class="flex flex-col gap-4">
+  <Header Title="Exemplo de Toast" 
+          Description="Demonstração do sistema de notificações Toast" />
+
+  <div class="bg-white rounded-lg shadow-sm dark:bg-gray-800 p-4 md:p-6 border-2 border-gray-200 dark:border-gray-700">
+    <h2 class="text-xl font-bold mb-4 text-gray-900 dark:text-white">Teste de Notificações</h2>
+    
+    <div class="flex flex-col md:flex-row gap-4">
+      <button @onclick="ShowSuccessToast" 
+              class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors">
+        Mostrar Toast de Sucesso
+      </button>
+      
+      <button @onclick="ShowErrorToast" 
+              class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors">
+        Mostrar Toast de Erro
+      </button>
+      
+      <button @onclick="ShowWarningToast" 
+              class="px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600 transition-colors">
+        Mostrar Toast de Aviso
+      </button>
+    </div>
+  </div>
+</div>
+
+@code {
+    private void ShowSuccessToast()
+    {
+        ToastService.ShowSuccess("Operação realizada com sucesso!");
+    }
+    
+    private void ShowErrorToast()
+    {
+        ToastService.ShowError("Ocorreu um erro ao processar a solicitação.");
+    }
+    
+    private void ShowWarningToast()
+    {
+        ToastService.ShowWarning("Atenção! Esta ação pode ter consequências.");
+    }
+} 

@@ -4,6 +4,7 @@
 @using Microsoft.AspNetCore.Components.Forms
 @inject CargoService CargoService
 @inject NavigationManager NavigationManager
+@inject ToastService ToastService
 
 <PageTitle>Registro de Cargo</PageTitle>
 
@@ -45,13 +46,6 @@
         class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Cadastrar
         Cargo</button>
     </EditForm>
-
-    @if (!string.IsNullOrEmpty(mensagem))
-    {
-      <div class="mt-4 p-4 @(sucesso ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700") rounded">
-        @mensagem
-      </div>
-    }
   </div>
 
   <div class="mt-8">
@@ -61,7 +55,7 @@
     {
       @foreach (var cargoItem in cargosList)
       {
-        <div class="bg-gray-50 dark:bg-gray-800 rounded-lg mb-4 shadow-sm">
+        <div class="bg-gray-50 dark:bg-gray-800 rounded-lg mb-4 shadow-sm border-2 border-gray-200 dark:border-gray-700">
           <div class="px-4 py-3 grid grid-cols-3 text-gray-700 dark:text-gray-300">
             <div>
               <div class="font-bold">Nome</div>
@@ -108,7 +102,6 @@
 @code {
   private Cargo cargo = new Cargo();
   private string mensagem = string.Empty;
-  private bool sucesso = false;
   private List<Cargo> cargosList = new List<Cargo>();
 
   protected override async Task OnInitializedAsync()
@@ -124,8 +117,7 @@
     }
     catch (Exception ex)
     {
-      mensagem = $"Erro ao carregar cargos: {ex.Message}";
-      sucesso = false;
+      ToastService.ShowError($"Erro ao carregar cargos: {ex.Message}");
     }
   }
 
@@ -134,15 +126,14 @@
     try
     {
       await CargoService.CreateCargo(cargo);
-      mensagem = "Cargo cadastrado com sucesso!";
-      sucesso = true;
       cargo = new Cargo();
       await CarregarCargos();
+
+      ToastService.ShowSuccess("Cargo cadastrado com sucesso!");
     }
     catch (Exception ex)
     {
-      mensagem = $"Erro ao cadastrar cargo: {ex.Message}";
-      sucesso = false;
+      ToastService.ShowError($"Erro ao cadastrar cargo: {ex.Message}");
     }
   }
 
@@ -158,13 +149,11 @@
     {
       await CargoService.DeleteCargo(id);
       await CarregarCargos();
-      mensagem = "Cargo excluído com sucesso!";
-      sucesso = true;
+      ToastService.ShowSuccess("Cargo excluído com sucesso!");
     }
     catch (Exception ex)
     {
-      mensagem = $"Erro ao excluir cargo: {ex.Message}";
-      sucesso = false;
+      ToastService.ShowError($"Erro ao excluir cargo: {ex.Message}");
     }
   }
 }
