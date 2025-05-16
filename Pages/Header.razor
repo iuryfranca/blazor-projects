@@ -1,0 +1,35 @@
+@using AppConcurso.Services
+
+<div class="flex flex-row gap-4 items-start">
+    <button class="text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white p-2 cursor-pointer"
+        @onclick="OnToggleNavMenu">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+            class="lucide lucide-panel-right-open-icon lucide-panel-right-open">
+            <rect width="18" height="18" x="3" y="3" rx="2" />
+            <path d="M15 3v18" />
+            <path d="m10 15-3-3 3-3" />
+        </svg>
+    </button>
+
+    <div class="flex flex-col gap-2 mb-6">
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white"> @Title </h1>
+        <p class="text-lg text-gray-500 dark:text-gray-400"> @Description </p>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string Title { get; set; }
+
+    [Parameter]
+    public string Description { get; set; }
+
+    [Inject]
+    public SideMenuService SideMenuService { get; set; }
+
+    private void OnToggleNavMenu()
+    {
+        SideMenuService.ToggleNavMenu();
+    }
+}

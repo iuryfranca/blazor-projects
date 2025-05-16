@@ -1,19 +1,22 @@
 ﻿@inherits LayoutComponentBase
+@using AppConcurso.Services
 
-<PageTitle>AppConcurso</PageTitle>
 
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
-
-    <main>
-        <div class="top-row px-4">
-            <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
-        </div>
-
-        <article class="content px-4">
-            @Body
-        </article>
-    </main>
+<div class="@SideMenuService.BodyCssClass">
+   <div>
+      <NavMenu />
+   </div>
+   <div class="min-h-screen bg-gray-100 dark:bg-gray-800 sm:p-8 p-4 w-full">@Body</div>
 </div>
+
+
+@code {
+   [Inject]
+   public SideMenuService SideMenuService { get; set; }
+
+   protected override void OnInitialized()
+   {
+      SideMenuService.OnChange += StateHasChanged;
+      StateHasChanged();
+   }
+}

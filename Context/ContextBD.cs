@@ -1,7 +1,7 @@
-using LearningBlazor.Models;
+using AppConcurso.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace LearningBlazor.Context;
+namespace AppConcurso.Context;
 
 public class ContextDB : DbContext
 {

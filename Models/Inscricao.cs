@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace LearningBlazor.Models;
+namespace AppConcurso.Models;
 
 [Table("inscricao", Schema = "public")]
 public class Inscricao

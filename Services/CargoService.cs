@@ -1,9 +1,9 @@
-using LearningBlazor.Context;
-using LearningBlazor.Models;
+using AppConcurso.Context;
+using AppConcurso.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace LearningBlazor.Services;
+namespace AppConcurso.Services;
 
 public class CargoService
 {
@@ -25,10 +25,17 @@ public class CargoService
             ?? throw new Exception("Cargo não encontrado");
     }
 
-    public async Task<Cargo>? CreateCandidato(Cargo cargo)
+    public async Task<Cargo>? CreateCargo(Cargo cargo)
     {
         await _context.Cargos.AddAsync(cargo);
         await _context.SaveChangesAsync();
         return cargo;
+    }
+
+    public async Task DeleteCargo(int id)
+    {
+        var cargo = await GetCargoById(id);
+        _context.Cargos.Remove(cargo);
+        await _context.SaveChangesAsync();
     }
 }

@@ -1,9 +1,9 @@
-using LearningBlazor.Context;
-using LearningBlazor.Models;
+using AppConcurso.Context;
+using AppConcurso.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace LearningBlazor.Services;
+namespace AppConcurso.Services;
 
 public class InscricaoService
 {

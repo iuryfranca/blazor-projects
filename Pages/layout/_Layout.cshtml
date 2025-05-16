@@ -1,0 +1,54 @@
+﻿@using Microsoft.AspNetCore.Components.Web
+@namespace AppConcurso.Pages
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <base href="~/" />
+
+  <link href="~/css/app.css" rel="stylesheet" />
+  <link href="~/css/output.css" rel="stylesheet" />
+
+  
+  <component type="typeof(HeadOutlet)" render-mode="ServerPrerendered" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+    rel="stylesheet" />
+</head>
+
+<body>
+  @RenderBody()
+
+  <div id="blazor-error-ui">
+    <environment include="Staging,Production">
+      An error has occurred. This application may no longer respond until reloaded.
+    </environment>
+    <environment include="Development">
+      An unhandled exception has occurred. See browser dev tools for details.
+    </environment>
+    <a href="" class="reload">Reload</a>
+    <a class="dismiss">🗙</a>
+  </div>
+
+  <script src="_framework/blazor.server.js"></script>
+
+  <script src="_content/BlazorInputMask/Main.js"></script>
+  <script src="_content/BlazorInputMask/IMask.js"></script>
+
+  <script src="js/flowbite-interop.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts@3.46.0/dist/apexcharts.min.js"></script>
+  <script>
+    window.initializeFlowbite = () => {
+      initFlowbite();
+    }
+  </script>
+</body>
+
+</html>

@@ -1,8 +1,5 @@
-using AppConcurso.Data;
-using LearningBlazor.Context;
-using LearningBlazor.Services;
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
+using AppConcurso.Context;
+using AppConcurso.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,17 +7,13 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
-builder.Services.AddSingleton<WeatherForecastService>();
-
-// Add services to the container.
-builder.Services.AddRazorPages();
-builder.Services.AddServerSideBlazor();
-builder.Services.AddSingleton<WeatherForecastService>();
 
 // Injeção de dependências
 builder.Services.AddScoped<CargoService>();
 builder.Services.AddScoped<CandidatoService>();
 builder.Services.AddScoped<InscricaoService>();
+builder.Services.AddScoped<SideMenuService>();
+builder.Services.AddScoped<IFlowbiteService, FlowbiteService>();
 
 string mySqlConnectionStr = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContextPool<ContextDB>(options =>
@@ -44,6 +37,6 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.MapBlazorHub();
-app.MapFallbackToPage("/_Host");
+app.MapFallbackToPage("/layout/_Host");
 
 app.Run();

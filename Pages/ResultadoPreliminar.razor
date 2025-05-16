@@ -1,20 +1,5 @@
 ﻿@page "/resultado-preliminar"
-@using AppConcurso.Data
-@inject WeatherForecastService ForecastService
 
 <PageTitle>Resultado Preliminar</PageTitle>
 
 <h1>Resultado Preliminar</h1>
-
-<p>This component demonstrates fetching data from a service.</p>
-
-
-
-@code {
-    private WeatherForecast[]? forecasts;
-
-    protected override async Task OnInitializedAsync()
-    {
-        forecasts = await ForecastService.GetForecastAsync(DateOnly.FromDateTime(DateTime.Now));
-    }
-}

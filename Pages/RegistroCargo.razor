@@ -1,0 +1,170 @@
+@page "/registro-cargo"
+@using AppConcurso.Models
+@using AppConcurso.Services
+@using Microsoft.AspNetCore.Components.Forms
+@inject CargoService CargoService
+@inject NavigationManager NavigationManager
+
+<PageTitle>Registro de Cargo</PageTitle>
+
+<div class="flex flex-col gap-4">
+  <Header Title="Registro de Cargo" 
+          Description="Cadastre novos cargos para o concurso, incluindo nome, edital e salário base." />
+
+  <div class="bg-white rounded-lg max-w-md shadow-sm dark:bg-gray-800 p-4 md:p-6 border-2 border-gray-200 dark:border-gray-700">
+    <EditForm Model="@cargo" OnValidSubmit="HandleValidSubmit">
+      <DataAnnotationsValidator />
+
+      <div class="relative z-0 w-full mb-5 group">
+        <input @bind="cargo.NomeCargo" id="floating_nome_cargo"
+          class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+          placeholder=" " required />
+        <label for="floating_nome_cargo"
+          class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Nome
+          do Cargo</label>
+      </div>
+
+      <div class="relative z-0 w-full mb-5 group">
+        <input @bind="cargo.Edital" id="floating_edital"
+          class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+          placeholder=" " required />
+        <label for="floating_edital"
+          class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Edital</label>
+      </div>
+
+      <div class="relative z-0 w-full mb-5 group">
+        <input @bind="cargo.SalarioBase" type="number" step="0.01" id="floating_salario_base"
+          class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+          placeholder=" " required />
+        <label for="floating_salario_base"
+          class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Salário
+          Base</label>
+      </div>
+
+      <button type="submit"
+        class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Cadastrar
+        Cargo</button>
+    </EditForm>
+
+    @if (!string.IsNullOrEmpty(mensagem))
+    {
+      <div class="mt-4 p-4 @(sucesso ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700") rounded">
+        @mensagem
+      </div>
+    }
+  </div>
+
+  <div class="mt-8">
+    <h2 class="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Cargos Cadastrados</h2>
+    
+    @if (cargosList != null && cargosList.Any())
+    {
+      @foreach (var cargoItem in cargosList)
+      {
+        <div class="bg-gray-50 dark:bg-gray-800 rounded-lg mb-4 shadow-sm">
+          <div class="px-4 py-3 grid grid-cols-3 text-gray-700 dark:text-gray-300">
+            <div>
+              <div class="font-bold">Nome</div>
+              <div>@cargoItem.NomeCargo</div>
+            </div>
+            <div>
+              <div class="font-bold">Edital</div>
+              <div>@cargoItem.Edital</div>
+            </div>
+            <div>
+              <div class="font-bold">Salário Base</div>
+              <div>@cargoItem.SalarioBase.ToString("C")</div>
+            </div>
+          </div>
+          
+          <div class="flex justify-center gap-2 py-3 px-4 bg-gray-200 dark:bg-gray-700 rounded-b-lg">
+            <button @onclick="() => EditarCargo(cargoItem)" class="inline-flex cursor-pointer items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+              </svg>
+              Editar
+            </button>
+            
+            <button @onclick="() => ExcluirCargo(cargoItem.Id)" class="inline-flex cursor-pointer items-center px-3 py-2 text-sm font-medium text-center text-white bg-red-700 rounded-lg hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+              </svg>
+              Excluir
+            </button>
+          </div>
+        </div>
+      }
+    }
+    else
+    {
+      <div class="bg-white dark:bg-gray-800 p-4 rounded-lg text-center text-gray-500 dark:text-gray-400 border-2 border-gray-200 dark:border-gray-700">
+        Nenhum cargo cadastrado
+      </div>
+    }
+  </div>
+
+</div>
+
+@code {
+  private Cargo cargo = new Cargo();
+  private string mensagem = string.Empty;
+  private bool sucesso = false;
+  private List<Cargo> cargosList = new List<Cargo>();
+
+  protected override async Task OnInitializedAsync()
+  {
+    await CarregarCargos();
+  }
+
+  private async Task CarregarCargos()
+  {
+    try
+    {
+      cargosList = await CargoService.GetCargos();
+    }
+    catch (Exception ex)
+    {
+      mensagem = $"Erro ao carregar cargos: {ex.Message}";
+      sucesso = false;
+    }
+  }
+
+  private async Task HandleValidSubmit()
+  {
+    try
+    {
+      await CargoService.CreateCargo(cargo);
+      mensagem = "Cargo cadastrado com sucesso!";
+      sucesso = true;
+      cargo = new Cargo();
+      await CarregarCargos();
+    }
+    catch (Exception ex)
+    {
+      mensagem = $"Erro ao cadastrar cargo: {ex.Message}";
+      sucesso = false;
+    }
+  }
+
+  private void EditarCargo(Cargo cargoParaEditar)
+  {
+    // Implementar lógica de edição
+    NavigationManager.NavigateTo($"/editar-cargo/{cargoParaEditar.Id}");
+  }
+
+  private async Task ExcluirCargo(int id)
+  {
+    try
+    {
+      await CargoService.DeleteCargo(id);
+      await CarregarCargos();
+      mensagem = "Cargo excluído com sucesso!";
+      sucesso = true;
+    }
+    catch (Exception ex)
+    {
+      mensagem = $"Erro ao excluir cargo: {ex.Message}";
+      sucesso = false;
+    }
+  }
+}
