@@ -641,10 +641,8 @@
       const chart = new ApexCharts(document.getElementById("donut-chart"), getChartOptions())
       chart.render()
 
-      // Get all the checkboxes by their class name
       const checkboxes = document.querySelectorAll('#devices input[type="checkbox"]')
 
-      // Function to handle the checkbox change event
       function handleCheckboxChange(event, chart) {
         const checkbox = event.target
         if (checkbox.checked) {
@@ -666,7 +664,6 @@
         }
       }
 
-      // Attach the event listener to each checkbox
       checkboxes.forEach((checkbox) => {
         checkbox.addEventListener("change", (event) => handleCheckboxChange(event, chart))
       })

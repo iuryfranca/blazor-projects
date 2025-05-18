@@ -125,7 +125,6 @@
 
         listaCandidatosPorCargo = listaCandidatos.OrderByDescending(x => x.MediaDeNotas).ToList();
 
-        // Tentando pegar os items com as medias iguais, mas não está funcionando ://
         var listaCandidatosPorNotasRepetidas = listaCandidatosPorCargo.GroupBy(n => n.MediaDeNotas).Select(g => new
         {
             Media = g.Key,
@@ -161,7 +160,6 @@
 
                     if (candidatoPorConhEspesRepetidos.Repeticao > 1)
                     {
-                        // Ordenando esse array com notas repetidas pela segunda verificação do questionario: Nota de Conhecimentos Gerais
                         var listaCandidatosPorNotasIguaisConhGerais = candidatoPorConhEspesRepetidos.Candidato.OrderByDescending(x =>
                         x.NotaConhGerais).ToList();
 
@@ -178,7 +176,6 @@
 
                             if (candidatoPorNotasIguaisConhGeraisRepetidos.Repeticao > 1)
                             {
-                                // Ordenando esse array com notas repetidas pela terceira verificação do questionario: Data de Nascimento
                                 var listaCandidatosPorDataNascimento = candidatoPorNotasIguaisConhGeraisRepetidos.Candidato.OrderBy(x =>
                                 x.DataNascimento).ToList();
 

@@ -38,4 +38,32 @@ public class CargoService
         _context.Cargos.Remove(cargo);
         await _context.SaveChangesAsync();
     }
+
+    public async Task<Cargo> UpdateCargo(Cargo cargo)
+    {
+        if (cargo == null)
+        {
+            throw new ArgumentNullException(nameof(cargo));
+        }
+
+        try
+        {
+            bool cargoExiste = await _context.Cargos.AnyAsync(c => c.Id == cargo.Id);
+            if (!cargoExiste)
+            {
+                throw new Exception($"Cargo com ID {cargo.Id} não encontrado");
+            }
+
+            _context.ChangeTracker.Clear();
+            _context.Cargos.Update(cargo);
+            await _context.SaveChangesAsync();
+            
+            return cargo;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erro detalhado: {ex}");
+            throw new Exception($"Erro ao atualizar cargo: {ex.Message}", ex);
+        }
+    }
 }
