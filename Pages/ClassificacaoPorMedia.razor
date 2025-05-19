@@ -8,17 +8,18 @@
 @inherits FlowbitePage
 
 
-<h3>Classsificação Preliminar por Cargo</h3>
+<Header Title="Classificação Preliminar por Cargo"
+    Description="Veja a classificação dos candidatos por média de notas para cada cargo." />
 
-<div class="container">
-    <nav class="navbar navbar-light" style="background-color: white"></nav>
-
-    <nav class="navbar navbar-light" style="background-color: darkgreen"></nav>
-    <div class="row align-items-start">
-        <div class="col">
-            <div class="form-group">
-                <label for="veiculo" class="form-label">Cargos:</label>
-                <select @onchange="SelecionarCargos" class="form-select" aria-label="Selecione um Cargo">
+<div class="flex flex-col gap-4">
+    <div class="flex flex-row gap-8 w-full">
+        <div
+            class="bg-gray-50 dark:bg-gray-800 rounded-lg w-full shadow-sm border-2 border-gray-200 dark:border-gray-700 p-4">
+            <div class="flex flex-col gap-2 w-full">
+                <label for="select_cargo"
+                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Cargos:</label>
+                <select id="select_cargo" @onchange="SelecionarCargos"
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                     <option selected>Selecione um cargo</option>
                     @foreach (var item in listCargos)
                     {
@@ -29,46 +30,50 @@
         </div>
     </div>
 
-    <nav class="navbar navbar-light" style="background-color: white"></nav>
-    <nav class="navbar navbar-light" style="background-color: darkgreen"></nav>
-
-    <h4 style="text-align:center">Resultado Preliminar</h4>
-    @if (naoExisteInscricao)
-    {
-        <div class="alert alert-success" role="alert">
-            Não existe inscrição para este cargo.
-        </div>
-    }
-    else
-    {
-        <table class="table">
-            <thead>
-                <tr>
-                    <th scope="col">Nome</th>
-                    <th scope="col">CPF</th>
-                    <th scope="col">Data de Nascimento</th>
-                    <th scope="col">Número de Inscrição</th>
-                    <th scope="col">Nota Conhecimentos Gerais</th>
-                    <th scope="col">Nota Conhecimentos Específicos</th>
-                    <th scope="col">Média de Notas</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var candidato in listaCandidatosPorCargo)
-                {
+    <div class="relative overflow-x-auto mt-8">
+        <h4 class="text-xl font-semibold mb-4 text-gray-800 dark:text-white text-center">Resultado Preliminar</h4>
+        @if (naoExisteInscricao)
+        {
+            <div
+                class="bg-white dark:bg-gray-800 p-4 rounded-lg text-center text-gray-500 dark:text-gray-400 border-2 border-gray-200 dark:border-gray-700">
+                Não existe inscrição para este cargo.
+            </div>
+        }
+        else
+        {
+            <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                     <tr>
-                        <td>@candidato.Nome</td>
-                        <td>@candidato.Cpf</td>
-                        <td>@candidato.DataNascimento</td>
-                        <td>@candidato.NumeroInsc</td>
-                        <td>@candidato.NotaConhGerais</td>
-                        <td>@candidato.NotaConhEspecificos</td>
-                        <td>@candidato.MediaDeNotas</td>
+                        <th scope="col" class="px-6 py-3">Posição</th>
+                        <th scope="col" class="px-6 py-3">Nome</th>
+                        <th scope="col" class="px-6 py-3">CPF</th>
+                        <th scope="col" class="px-6 py-3">Data de Nascimento</th>
+                        <th scope="col" class="px-6 py-3">Nº Inscrição</th>
+                        <th scope="col" class="px-6 py-3">Nota Conhecimentos Gerais</th>
+                        <th scope="col" class="px-6 py-3">Nota Conhecimentos Específicos</th>
+                        <th scope="col" class="px-6 py-3">Média de Notas</th>
                     </tr>
-                }
-            </tbody>
-        </table>
-    }
+                </thead>
+                <tbody>
+                    @for (int i = 0; i < listaCandidatosPorCargo.Count; i++)
+                    {
+                        var candidato = listaCandidatosPorCargo[i];
+                        <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200">
+                            <td class="px-6 py-4 font-bold text-gray-900 whitespace-nowrap dark:text-white">@((i+1).ToString() +
+                                                        "º")</td>
+                    <td class="px-6 py-4">@candidato.Nome</td>
+                    <td class="px-6 py-4">@candidato.Cpf</td>
+                    <td class="px-6 py-4">@candidato.DataNascimento.ToString("dd/MM/yyyy")</td>
+                    <td class="px-6 py-4">@candidato.NumeroInsc</td>
+                    <td class="px-6 py-4">@candidato.NotaConhGerais</td>
+                    <td class="px-6 py-4">@candidato.NotaConhEspecificos</td>
+                    <td class="px-6 py-4">@candidato.MediaDeNotas</td>
+                </tr>
+                                }
+                </tbody>
+            </table>
+        }
+    </div>
 </div>
 
 
