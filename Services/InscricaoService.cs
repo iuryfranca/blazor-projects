@@ -41,4 +41,11 @@ public class InscricaoService
         await _context.SaveChangesAsync();
         return inscricao;
     }
+
+    public async Task DeleteInscricao(int id)
+    {
+        var inscricao = await GetInscricaoById(id);
+        _context.Inscricoes.Remove(inscricao);
+        await _context.SaveChangesAsync();
+    }
 }

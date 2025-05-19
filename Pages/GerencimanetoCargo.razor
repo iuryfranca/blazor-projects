@@ -48,14 +48,15 @@
       Cargo</button>
   </div>
 
-  <div class="mt-8">
-    <h2 class="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Cargos Cadastrados</h2>
+  <h2 class="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Cargos Cadastrados</h2>
+  <div class="grid grid-cols-[repeat(2,minmax(100px,1fr))] lg:grid-cols-[repeat(4,minmax(100px,1fr))] gap-4">
 
     @if (cargosListFiltrada != null && cargosListFiltrada.Any())
     {
       @foreach (var cargoItem in cargosListFiltrada)
       {
-        <div class="bg-gray-50 dark:bg-gray-800 rounded-lg mb-4 shadow-sm border-2 border-gray-200 dark:border-gray-700">
+        <div
+          class="bg-gray-50 dark:bg-gray-800 rounded-lg mb-4 shadow-sm border-2 border-gray-200 dark:border-gray-700 flex flex-col justify-between">
           <div class="px-4 py-3 grid grid-cols-3 text-gray-700 dark:text-gray-300">
             <div>
               <div class="font-bold">Nome</div>
