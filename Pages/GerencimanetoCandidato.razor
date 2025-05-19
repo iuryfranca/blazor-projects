@@ -1,18 +1,19 @@
-@page "/registro-cargo"
+@page "/registro-candidato"
 @using AppConcurso.Models
 @using AppConcurso.Services
 @using Microsoft.AspNetCore.Components.Forms
 @using Microsoft.JSInterop
-@inject CargoService CargoService
+@inject CandidatoService CandidatoService
 @inject NavigationManager NavigationManager
 @inject ToastService ToastService
 @inject IJSRuntime JS
+@inherits FlowbitePage
 
-<PageTitle>Registro de Cargo</PageTitle>
+<PageTitle>Registro de Candidato</PageTitle>
 
 <div class="flex flex-col gap-4">
-  <Header Title="Registro de Cargo"
-    Description="Cadastre novos cargos para o concurso, incluindo nome, edital e salário base." />
+  <Header Title="Registro de Candidato"
+    Description="Cadastre novos candidatos para o concurso, incluindo nome, CPF e data de nascimento." />
 
   <div class="flex flex-row gap-8 w-full">
     <div class="bg-gray-50 dark:bg-gray-800 rounded-lg w-full shadow-sm border-2 border-gray-200 dark:border-gray-700">
@@ -22,7 +23,7 @@
           <div class="relative z-0 w-full group">
             <input @bind="filtroTexto" @bind:event="oninput" @onkeyup="AplicarFiltro"
               class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-              placeholder="Buscar por cargo ou edital" />
+              placeholder="Buscar por nome ou CPF" />
           </div>
         </div>
         <div class="flex flex-col gap-2 min-w-56">
@@ -31,8 +32,8 @@
             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
             <option selected value="nome_asc">Nome (A-Z)</option>
             <option value="nome_desc">Nome (Z-A)</option>
-            <option value="salario_asc">Salário (Menor-Maior)</option>
-            <option value="salario_desc">Salário (Maior-Menor)</option>
+            <option value="data_asc">Data de Nascimento (Mais antiga)</option>
+            <option value="data_desc">Data de Nascimento (Mais recente)</option>
           </select>
         </div>
         <div class="flex items-end w-44">
@@ -43,37 +44,38 @@
         </div>
       </div>
     </div>
-    <button type="submit" data-modal-target="default-modal" data-modal-toggle="default-modal"
+    <button type="button" @onclick="ShowModal"
       class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-48 px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Cadastrar
-      Cargo</button>
+      Candidato</button>
   </div>
 
   <div class="mt-8">
-    <h2 class="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Cargos Cadastrados</h2>
+    <h2 class="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Candidatos Cadastrados</h2>
 
-    @if (cargosListFiltrada != null && cargosListFiltrada.Any())
+    @if (candidatosListFiltrada != null && candidatosListFiltrada.Any())
     {
-      @foreach (var cargoItem in cargosListFiltrada)
+      @foreach (var candidatoItem in candidatosListFiltrada)
       {
         <div class="bg-gray-50 dark:bg-gray-800 rounded-lg mb-4 shadow-sm border-2 border-gray-200 dark:border-gray-700">
           <div class="px-4 py-3 grid grid-cols-3 text-gray-700 dark:text-gray-300">
             <div>
               <div class="font-bold">Nome</div>
-              <div>@cargoItem.NomeCargo</div>
+              <div>@candidatoItem.Nome</div>
             </div>
             <div>
-              <div class="font-bold">Edital</div>
-              <div>@cargoItem.Edital</div>
+              <div class="font-bold">CPF</div>
+              <div>@candidatoItem.Cpf</div>
             </div>
             <div>
-              <div class="font-bold">Salário Base</div>
-              <div>@cargoItem.SalarioBase.ToString("C")</div>
+              <div class="font-bold">Data de Nascimento</div>
+              <div>@candidatoItem.DataNascimento.ToString("dd/MM/yyyy")</div>
             </div>
           </div>
 
-          <div class="flex justify-center gap-2 py-3 px-4 bg-gray-200 dark:bg-gray-700 rounded-b-lg">
-            <button @onclick="() => EditarCargo(cargoItem)"
-              class="inline-flex cursor-pointer items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+          <div class="flex justify-center gap-6 py-3 px-4 bg-gray-200 dark:bg-gray-700 rounded-b-lg">
+            <button data-modal-target="default-modal" data-modal-toggle="default-modal"
+              class="inline-flex cursor-pointer items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+              @onclick="() => EditarCandidato(candidatoItem)">
               <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                 xmlns="http://www.w3.org/2000/svg">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -83,7 +85,7 @@
               Editar
             </button>
 
-            <button @onclick="() => ExcluirCargo(cargoItem.Id)"
+            <button @onclick="() => ExcluirCandidato(candidatoItem.Id)"
               class="inline-flex cursor-pointer items-center px-3 py-2 text-sm font-medium text-center text-white bg-red-700 rounded-lg hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">
               <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                 xmlns="http://www.w3.org/2000/svg">
@@ -101,14 +103,13 @@
     {
       <div
         class="bg-white dark:bg-gray-800 p-4 rounded-lg text-center text-gray-500 dark:text-gray-400 border-2 border-gray-200 dark:border-gray-700">
-        Nenhum cargo cadastrado
+        Nenhum candidato cadastrado
       </div>
     }
   </div>
 
-
   <!-- Main modal -->
-  <div id="default-modal" tabindex="-1" aria-hidden="true"
+  <div id="default-modal" tabindex="-1" aria-hidden="true" data-modal-backdrop="static"
     class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
     <div class="relative p-4 w-full max-w-2xl max-h-full">
       <!-- Modal content -->
@@ -117,7 +118,7 @@
         <div
           class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600 border-gray-200">
           <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
-            @(modoEdicao ? "Editar Cargo" : "Registro de Cargo")
+            @(modoEdicao ? "Editar Candidato" : "Registro de Candidato")
           </h3>
           <button type="button" @onclick="CloseModal"
             class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
@@ -130,33 +131,38 @@
           </button>
         </div>
         <!-- Modal body -->
-        <EditForm Model="@cargo" OnValidSubmit="HandleValidSubmit" class="p-4">
+        <EditForm Model="@candidato" OnValidSubmit="HandleValidSubmit" class="p-4">
           <DataAnnotationsValidator />
 
           <div class="relative z-0 w-full mb-5 group">
-            <input @bind="cargo.NomeCargo" id="floating_nome_cargo"
+            <input @bind="candidato.Nome" id="floating_nome"
               class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
               placeholder=" " required />
-            <label for="floating_nome_cargo"
-              class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Nome
-              do Cargo</label>
+            <label for="floating_nome"
+              class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">
+              Nome</label>
           </div>
 
           <div class="relative z-0 w-full mb-5 group">
-            <input @bind="cargo.Edital" id="floating_edital"
+            <input @bind="candidato.Cpf" id="floating_cpf"
               class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
               placeholder=" " required />
-            <label for="floating_edital"
-              class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Edital</label>
+            <label for="floating_cpf"
+              class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">
+              CPF</label>
           </div>
 
           <div class="relative z-0 w-full mb-5 group">
-            <input @bind="cargo.SalarioBase" type="number" step="0.01" id="floating_salario_base"
+            <div class="absolute inset-y-0 end-1 flex items-center ps-3 pointer-events-none">
+              <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" xmlns="http://www.w3.org/2000/svg"
+                fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z" />
+              </svg>
+            </div>
+            <input id="datepicker" type="date" @bind="candidato.DataNascimento"
               class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-              placeholder=" " required />
-            <label for="floating_salario_base"
-              class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Salário
-              Base</label>
+              placeholder="Selecione a data">
           </div>
 
           <!-- Modal footer -->
@@ -164,6 +170,7 @@
             <button data-modal-hide="default-modal" type="submit"
               class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
               @(modoEdicao ? "Atualizar" : "Cadastrar")</button>
+
             <button data-modal-hide="default-modal" type="button" @onclick="CloseModal"
               class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">Cancelar</button>
           </div>
@@ -174,57 +181,72 @@
 </div>
 
 @code {
-  private Cargo cargo = new Cargo();
+  private Candidato candidato = new Candidato();
   private string mensagem = string.Empty;
-  private List<Cargo> cargosList = new List<Cargo>();
-  private List<Cargo> cargosListFiltrada = new List<Cargo>();
+  private List<Candidato> candidatosList = new List<Candidato>();
+  private List<Candidato> candidatosListFiltrada = new List<Candidato>();
   private bool modoEdicao = false;
   private string filtroTexto = "";
   private string tipoOrdenacao = "nome_asc";
 
   protected override async Task OnInitializedAsync()
   {
-    await CarregarCargos();
+    await CarregarCandidatos();
   }
 
-  private async Task CarregarCargos()
+  private async Task CarregarCandidatos()
   {
     try
     {
-      cargosList = await CargoService.GetCargos();
+      candidatosList = await CandidatoService.GetCandidatos();
       AplicarFiltro();
     }
     catch (Exception ex)
     {
-      ToastService.ShowError($"Erro ao carregar cargos: {ex.Message}");
+      ToastService.ShowError($"Erro ao carregar candidatos: {ex.Message}");
     }
+  }
+
+  private async Task CloseModal()
+  {
+    LimparCampos();
+    await JS.InvokeVoidAsync("flowbiteInterop.closeModal", "default-modal");
+  }
+
+  private async Task ShowModal()
+  {
+    if (!modoEdicao)
+    {
+      LimparCampos();
+    }
+    await JS.InvokeVoidAsync("flowbiteInterop.showModal", "default-modal");
   }
 
   private void AplicarFiltro()
   {
     var resultados = string.IsNullOrWhiteSpace(filtroTexto)
-    ? cargosList
-    : cargosList.Where(c =>
-    c.NomeCargo.Contains(filtroTexto, StringComparison.OrdinalIgnoreCase) ||
-    c.Edital.Contains(filtroTexto, StringComparison.OrdinalIgnoreCase)).ToList();
+    ? candidatosList
+    : candidatosList.Where(c =>
+    c.Nome.Contains(filtroTexto, StringComparison.OrdinalIgnoreCase) ||
+    c.Cpf.Contains(filtroTexto, StringComparison.OrdinalIgnoreCase)).ToList();
 
     switch (tipoOrdenacao)
     {
       case "nome_asc":
-        resultados = resultados.OrderBy(c => c.NomeCargo).ToList();
+        resultados = resultados.OrderBy(c => c.Nome).ToList();
         break;
       case "nome_desc":
-        resultados = resultados.OrderByDescending(c => c.NomeCargo).ToList();
+        resultados = resultados.OrderByDescending(c => c.Nome).ToList();
         break;
-      case "salario_asc":
-        resultados = resultados.OrderBy(c => c.SalarioBase).ToList();
+      case "data_asc":
+        resultados = resultados.OrderBy(c => c.DataNascimento).ToList();
         break;
-      case "salario_desc":
-        resultados = resultados.OrderByDescending(c => c.SalarioBase).ToList();
+      case "data_desc":
+        resultados = resultados.OrderByDescending(c => c.DataNascimento).ToList();
         break;
     }
 
-    cargosListFiltrada = resultados;
+    candidatosListFiltrada = resultados;
   }
 
   private void LimparFiltros()
@@ -236,14 +258,8 @@
 
   private void LimparCampos()
   {
-    cargo = new Cargo();
+    candidato = new Candidato();
     modoEdicao = false;
-  }
-
-  private void CloseModal()
-  {
-    LimparCampos();
-    JS.InvokeVoidAsync("flowbiteInterop.closeModal", "default-modal");
   }
 
   private async Task HandleValidSubmit()
@@ -252,64 +268,62 @@
     {
       if (modoEdicao)
       {
-        Console.WriteLine($"Enviando cargo para atualização - ID: {cargo.Id}, Nome: {cargo.NomeCargo}");
-        await CargoService.UpdateCargo(cargo);
-        ToastService.ShowSuccess("Cargo atualizado com sucesso!");
+        await CandidatoService.UpdateCandidato(candidato);
+        ToastService.ShowSuccess("Candidato atualizado com sucesso!");
       }
       else
       {
-        await CargoService.CreateCargo(cargo);
-        ToastService.ShowSuccess("Cargo cadastrado com sucesso!");
+        await CandidatoService.CreateCandidato(candidato);
+        ToastService.ShowSuccess("Candidato cadastrado com sucesso!");
       }
 
-      cargo = new Cargo();
+      LimparCampos();
       modoEdicao = false;
-      await CarregarCargos();
-
-      // Fechar o modal após o sucesso
-      await JS.InvokeVoidAsync("flowbiteInterop.closeModal", "default-modal");
+      await CarregarCandidatos();
+      await CloseModal();
     }
     catch (Exception ex)
     {
       Console.WriteLine($"Erro completo: {ex}");
 
-      // Exibir mensagem de erro mais detalhada
       string mensagemErro = ex.InnerException != null
       ? $"{ex.Message} - {ex.InnerException.Message}"
       : ex.Message;
 
-      ToastService.ShowError($"Erro ao {(modoEdicao ? "atualizar" : "cadastrar")} cargo: {mensagemErro}");
+      ToastService.ShowError($"Erro ao {(modoEdicao ? "atualizar" : "cadastrar")} candidato: {mensagemErro}");
     }
   }
 
-  private void EditarCargo(Cargo cargoParaEditar)
+  private async Task EditarCandidato(Candidato candidatoParaEditar)
   {
-    cargo = new Cargo
-    {
-      Id = cargoParaEditar.Id,
-      NomeCargo = cargoParaEditar.NomeCargo,
-      Edital = cargoParaEditar.Edital,
-      SalarioBase = cargoParaEditar.SalarioBase
-    };
+    LimparCampos();
+    await ShowModal();
 
-    Console.WriteLine($"Editando cargo - ID: {cargo.Id}, Nome: {cargo.NomeCargo}");
+    candidato.Id = candidatoParaEditar.Id;
+    candidato.Nome = candidatoParaEditar.Nome;
+    candidato.Cpf = candidatoParaEditar.Cpf;
+    candidato.DataNascimento = candidatoParaEditar.DataNascimento;
 
     modoEdicao = true;
-
-    JS.InvokeVoidAsync("flowbiteInterop.showModal", "default-modal");
   }
 
-  private async Task ExcluirCargo(int id)
+  private async Task ExcluirCandidato(int? id)
   {
     try
     {
-      await CargoService.DeleteCargo(id);
-      await CarregarCargos();
-      ToastService.ShowSuccess("Cargo excluído com sucesso!");
+      if (id == null)
+      {
+        ToastService.ShowError("ID do candidato não encontrado");
+        return;
+      }
+
+      await CandidatoService.DeleteCandidato(id.Value);
+      await CarregarCandidatos();
+      ToastService.ShowSuccess("Candidato excluído com sucesso!");
     }
     catch (Exception ex)
     {
-      ToastService.ShowError($"Erro ao excluir cargo: {ex.Message}");
+      ToastService.ShowError($"Erro ao excluir candidato: {ex.Message}");
     }
   }
 }

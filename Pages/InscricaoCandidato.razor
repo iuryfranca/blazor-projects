@@ -5,6 +5,8 @@
 @inject CandidatoService candidatoService;
 @inject InscricaoService inscricaoService;
 @inject NavigationManager navegacao;
+@inject ToastService ToastService
+
 
 <h3>INSCRIÇÃO DE CANDIDATO</h3>
 
@@ -142,11 +144,16 @@
     {
         await inscricaoService.UpdateRange(listaInscricoes);
 
+        if (candidato.Id == null)
+        {
+            ToastService.ShowError("Candidato não encontrado");
+            return;
+        }
 
         var novaInscricao = new Inscricao();
 
         novaInscricao.CargoId = cargo.Id;
-        novaInscricao.CandidatoId = candidato.Id;
+        novaInscricao.CandidatoId = candidato.Id.Value;
         novaInscricao.NotaConhGerais = notaConhecimentoGerais;
         novaInscricao.NotaConhEspecificos = notaConhecimentoEspecificos;
         novaInscricao.DataInscricao = DateTime.Now;

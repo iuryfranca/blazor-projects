@@ -43,7 +43,7 @@
         </div>
       </div>
     </div>
-    <button type="submit" data-modal-target="default-modal" data-modal-toggle="default-modal"
+    <button type="button" @onclick="ShowModal"
       class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-48 px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Cadastrar
       Cargo</button>
   </div>
@@ -71,7 +71,7 @@
             </div>
           </div>
 
-          <div class="flex justify-center gap-2 py-3 px-4 bg-gray-200 dark:bg-gray-700 rounded-b-lg">
+          <div class="flex justify-center gap-6 py-3 px-4 bg-gray-200 dark:bg-gray-700 rounded-b-lg">
             <button @onclick="() => EditarCargo(cargoItem)"
               class="inline-flex cursor-pointer items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
               <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
@@ -108,7 +108,7 @@
 
 
   <!-- Main modal -->
-  <div id="default-modal" tabindex="-1" aria-hidden="true"
+  <div id="default-modal" tabindex="-1" aria-hidden="true" data-modal-backdrop="static"
     class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
     <div class="relative p-4 w-full max-w-2xl max-h-full">
       <!-- Modal content -->
@@ -240,10 +240,16 @@
     modoEdicao = false;
   }
 
-  private void CloseModal()
+  private async Task ShowModal()
+  {
+    await JS.InvokeVoidAsync("flowbiteInterop.showModal", "default-modal");
+  }
+
+
+  private async Task CloseModal()
   {
     LimparCampos();
-    JS.InvokeVoidAsync("flowbiteInterop.closeModal", "default-modal");
+    await JS.InvokeVoidAsync("flowbiteInterop.closeModal", "default-modal");
   }
 
   private async Task HandleValidSubmit()
@@ -252,7 +258,6 @@
     {
       if (modoEdicao)
       {
-        Console.WriteLine($"Enviando cargo para atualização - ID: {cargo.Id}, Nome: {cargo.NomeCargo}");
         await CargoService.UpdateCargo(cargo);
         ToastService.ShowSuccess("Cargo atualizado com sucesso!");
       }

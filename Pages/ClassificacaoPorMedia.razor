@@ -5,6 +5,8 @@
 @inject CandidatoService candidatoService;
 @inject InscricaoService inscricaoService;
 @inject NavigationManager navegacao;
+@inherits FlowbitePage
+
 
 <h3>Classsificação Preliminar por Cargo</h3>
 
@@ -109,18 +111,18 @@
 
         foreach (var inscricao in listaInscricoesByCargo)
         {
-            var candidato = await candidatoService.GetCandidatosById(inscricao.CandidatoId);
+            var candidato = await candidatoService.GetCandidatoById(inscricao.CandidatoId);
             listaCandidatos.Add(new CandidatoInscrito()
-                {
-                    Nome = candidato.Nome,
-                    Cpf = candidato.Cpf,
-                    DataNascimento = candidato.DataNascimento,
-                    NumeroInsc = inscricao.NumeroInsc,
-                    DataInscricao = inscricao.DataInscricao,
-                    NotaConhGerais = inscricao.NotaConhGerais,
-                    NotaConhEspecificos = inscricao.NotaConhEspecificos,
-                    MediaDeNotas = (inscricao.NotaConhGerais + inscricao.NotaConhEspecificos) / 2
-                });
+            {
+                Nome = candidato.Nome,
+                Cpf = candidato.Cpf,
+                DataNascimento = candidato.DataNascimento,
+                NumeroInsc = inscricao.NumeroInsc,
+                DataInscricao = inscricao.DataInscricao,
+                NotaConhGerais = inscricao.NotaConhGerais,
+                NotaConhEspecificos = inscricao.NotaConhEspecificos,
+                MediaDeNotas = (inscricao.NotaConhGerais + inscricao.NotaConhEspecificos) / 2
+            });
         }
 
         listaCandidatosPorCargo = listaCandidatos.OrderByDescending(x => x.MediaDeNotas).ToList();

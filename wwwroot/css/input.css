@@ -5,3 +5,27 @@
 @source "../../node_modules/flowbite-datepicker";
 
 @custom-variant dark (&:where(.dark, .dark *));
+
+::-webkit-search-cancel-button,
+::-webkit-clear-button {
+  -webkit-appearance: none;
+  background-image: none;
+  color: rgba(0, 0, 0, 0.54);
+  cursor: pointer;
+  height: 1.5rem;
+  margin-right: 0;
+  width: 1.5rem;
+}
+
+::-webkit-calendar-picker-indicator {
+  color: rgba(0, 0, 0, 0);
+  opacity: 1;
+  background-image: none;
+  width: 14px;
+  height: 18px;
+  cursor: pointer;
+  border-radius: 50%;
+  margin-left: .5rem;
+}
+
+::-webkit-calendar-picker-indicator:hover {}
