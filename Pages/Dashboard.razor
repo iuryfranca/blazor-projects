@@ -2,16 +2,33 @@
 @using Microsoft.JSInterop
 @using AppConcurso.Models
 @using AppConcurso.Services
+@using System.Text
 @inherits FlowbitePage
 @inject CargoService CargoService
 @inject CandidatoService CandidatoService
 @inject InscricaoService InscricaoService
+@inject ToastService ToastService
 
 <PageTitle>Dashboard</PageTitle>
 
 <div class="flex flex-col gap-4">
   <Header Title="Dashboard"
     Description="Ver de forma fácil e rápida os dados do sistema em forma de gráficos. Interaja e analise os dados de forma simples e prática." />
+
+  <div class="flex flex-row gap-4 mb-4">
+    <button @onclick="GerarCargosAleatorios"
+      class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+      Gerar Cargos Aleatórios
+    </button>
+    <button @onclick="GerarCandidatosAleatorios"
+      class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">
+      Gerar Candidatos Aleatórios
+    </button>
+    <button @onclick="GerarInscricoesAleatorias"
+      class="text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:outline-none focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-800">
+      Gerar Inscrições Aleatórias
+    </button>
+  </div>
 
   <div class="flex flex-col flex-wrap lg:flex-row gap-4">
     <div
@@ -33,19 +50,28 @@
           <dd class="text-gray-900 text-sm dark:text-white font-semibold">@Inscricoes.Count</dd>
         </dl>
       </div>
-      <div class="mb-4 mt-2">
-        <label for="selectCargoChart" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">Filtrar por
-          Cargo:</label>
-        <select id="selectCargoChart"
-          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-          <option value="">Todos os cargos</option>
-          @for (int i = 0; i < Cargos.Count; i++)
-          {
-            <option value="@i">@Cargos[i].NomeCargo</option>
-          }
-        </select>
-      </div>
-      <div id="column-chart"></div>
+      @if (Cargos.Count > 0 && Inscricoes.Count > 0)
+      {
+        <div class="mb-4 mt-2">
+          <label for="selectCargoChart" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">Filtrar por
+            Cargo:</label>
+          <select id="selectCargoChart"
+            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+            <option value="">Todos os cargos</option>
+            @for (int i = 0; i < Cargos.Count; i++)
+            {
+              <option value="@i">@Cargos[i].NomeCargo</option>
+            }
+          </select>
+        </div>
+        <div id="column-chart"></div>
+      }
+      else
+      {
+        <div class="py-6 text-center text-gray-500 dark:text-gray-400">
+          Ainda não existem dados cadastrados. Gere alguns registros para visualizar o gráfico.
+        </div>
+      }
     </div>
 
     <div
@@ -55,29 +81,19 @@
           <h5 class="text-xl font-bold leading-none text-gray-900 dark:text-white pe-1">
             Cargos Inscritos
           </h5>
-          <div data-popover id="chart-info" role="tooltip"
-            class="absolute z-10 invisible inline-block text-sm text-gray-500 transition-opacity duration-300 bg-white border border-gray-200 rounded-lg shadow-xs opacity-0 w-72 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-400">
-          </div>
-        </div>
-        <div>
-          <button type="button" data-tooltip-target="data-tooltip" data-tooltip-placement="bottom"
-            class="hidden sm:inline-flex items-center justify-center text-gray-500 w-8 h-8 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm">
-            <svg class="w-3.5 h-3.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-              viewBox="0 0 16 18">
-              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M8 1v11m0 0 4-4m-4 4L4 8m11 4v3a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2v-3" />
-            </svg>
-            <span class="sr-only">Download data</span>
-          </button>
-          <div id="data-tooltip" role="tooltip"
-            class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700">
-            Download CSV
-            <div class="tooltip-arrow" data-popper-arrow></div>
-          </div>
         </div>
       </div>
-      <!-- Donut Chart -->
-      <div class="py-6" id="donut-chart"></div>
+      @if (Cargos.Count > 0 && Inscricoes.Count > 0)
+      {
+        <!-- Donut Chart -->
+        <div class="py-6" id="donut-chart"></div>
+      }
+      else
+      {
+        <div class="py-6 text-center text-gray-500 dark:text-gray-400">
+          Ainda não existem dados cadastrados. Gere alguns registros para visualizar o gráfico.
+        </div>
+      }
     </div>
 
     <div
@@ -91,8 +107,17 @@
           </div>
         </div>
       </div>
-      <!-- Line Chart -->
-      <div class="py-6" id="pie-chart"></div>
+      @if (Cargos.Count > 0 && Inscricoes.Count > 0)
+      {
+        <!-- Line Chart -->
+        <div class="py-6" id="pie-chart"></div>
+      }
+      else
+      {
+        <div class="py-6 text-center text-gray-500 dark:text-gray-400">
+          Ainda não existem dados cadastrados. Gere alguns registros para visualizar o gráfico.
+        </div>
+      }
     </div>
   </div>
 </div>
@@ -123,6 +148,11 @@
       if (window.chartColumn) { window.chartColumn.destroy(); window.chartColumn = null; }
       if (window.chartDonut) { window.chartDonut.destroy(); window.chartDonut = null; }
       if (window.chartPie) { window.chartPie.destroy(); window.chartPie = null; }
+
+      // Verifica se existem dados para exibir
+      if (cargos.length === 0 || inscricoesPorCargo.length === 0) {
+        return; // Não renderiza os gráficos se não houver dados
+      }
 
       // Gráfico de barras
       if (typeof ApexCharts !== "undefined" && document.getElementById("column-chart")) {
@@ -354,18 +384,21 @@
   public List<Inscricao> Inscricoes { get; set; } = new();
 
   public Dictionary<string, int> InscricoesPorCargo =>
+  Inscricoes.Count > 0 ?
   Inscricoes
   .GroupBy(i => i.CargoId)
   .ToDictionary(
   g => Cargos.FirstOrDefault(c => c.Id == g.Key)?.NomeCargo ?? "Desconhecido",
   g => g.Count()
-  );
+  ) : new Dictionary<string, int>();
 
   public string[] DonutLabels => InscricoesPorCargo.Keys.ToArray();
   public int[] DonutSeries => InscricoesPorCargo.Values.ToArray();
 
   public string[] PieLabels => InscricoesPorCargo.Keys.ToArray();
   public int[] PieSeries => InscricoesPorCargo.Values.ToArray();
+
+  private Random random = new Random();
 
   protected override async Task OnInitializedAsync()
   {
@@ -387,6 +420,158 @@
     PieLabels,
     PieSeries
     );
+  }
 
+  private async Task GerarCargosAleatorios()
+  {
+    try
+    {
+      int quantidadeCargos = random.Next(3, 8);
+      string[] nomesCargos = { "Desenvolvedor", "Analista", "Gerente", "Coordenador", "Diretor", "Técnico", "Engenheiro",
+"Administrador", "Contador", "Advogado" };
+      string[] editais = { "001/2023", "002/2023", "003/2023", "004/2023", "005/2023", "006/2023", "007/2023" };
+
+      for (int i = 0; i < quantidadeCargos; i++)
+      {
+        var cargo = new Cargo
+        {
+          NomeCargo = $"{nomesCargos[random.Next(nomesCargos.Length)]} {random.Next(1, 5)}",
+          Edital = editais[random.Next(editais.Length)],
+          SalarioBase = Math.Round(random.Next(1500, 10000) + random.NextDouble(), 2)
+        };
+
+        await CargoService.CreateCargo(cargo);
+      }
+
+      Cargos = await CargoService.GetCargos();
+      ToastService.ShowSuccess($"{quantidadeCargos} cargos aleatórios criados com sucesso!");
+
+      await JSRuntime.InvokeVoidAsync("initDataCharts",
+      Candidatos.Count,
+      Cargos.Count,
+      Inscricoes.Count,
+      Cargos.Select(c => c.NomeCargo).ToArray(),
+      InscricoesPorCargo.Values.ToArray(),
+      DonutLabels,
+      DonutSeries,
+      PieLabels,
+      PieSeries
+      );
+
+      StateHasChanged();
+    }
+    catch (Exception ex)
+    {
+      ToastService.ShowError($"Erro ao gerar cargos aleatórios: {ex.Message}");
+    }
+  }
+
+  private async Task GerarCandidatosAleatorios()
+  {
+    try
+    {
+      int quantidadeCandidatos = random.Next(5, 15);
+      string[] nomes = { "João", "Maria", "Pedro", "Ana", "Carlos", "Juliana", "Fernando", "Mariana", "Ricardo", "Camila",
+"Lucas", "Larissa", "Gabriel", "Bianca", "Rafael" };
+      string[] sobrenomes = { "Silva", "Santos", "Oliveira", "Souza", "Pereira", "Lima", "Costa", "Rodrigues", "Ferreira",
+"Almeida", "Carvalho", "Gomes", "Martins", "Araújo", "Melo" };
+
+      for (int i = 0; i < quantidadeCandidatos; i++)
+      {
+        string nome = $"{nomes[random.Next(nomes.Length)]} {sobrenomes[random.Next(sobrenomes.Length)]}";
+
+        // Gerar CPF válido (simplificado, apenas para fins de exemplo)
+        StringBuilder cpf = new StringBuilder();
+        for (int j = 0; j < 11; j++)
+        {
+          cpf.Append(random.Next(0, 10));
+        }
+
+        // Gerar data de nascimento entre 18 e 60 anos
+        DateTime dataNascimento = DateTime.Now.AddYears(-random.Next(18, 60)).AddDays(-random.Next(1, 365));
+
+        var candidato = new Candidato
+        {
+          Nome = nome,
+          Cpf = cpf.ToString(),
+          DataNascimento = dataNascimento
+        };
+
+        await CandidatoService.CreateCandidato(candidato);
+      }
+
+      Candidatos = await CandidatoService.GetCandidatos();
+      ToastService.ShowSuccess($"{quantidadeCandidatos} candidatos aleatórios criados com sucesso!");
+
+      StateHasChanged();
+    }
+    catch (Exception ex)
+    {
+      ToastService.ShowError($"Erro ao gerar candidatos aleatórios: {ex.Message}");
+    }
+  }
+
+  private async Task GerarInscricoesAleatorias()
+  {
+    try
+    {
+      if (Cargos.Count == 0 || Candidatos.Count == 0)
+      {
+        ToastService.ShowError("É necessário ter cargos e candidatos cadastrados para gerar inscrições!");
+        return;
+      }
+
+      int quantidadeInscricoes = Math.Min(Candidatos.Count * 2, 20);
+
+      for (int i = 0; i < quantidadeInscricoes; i++)
+      {
+        // Selecionar candidato e cargo aleatórios
+        int candidatoId = Candidatos[random.Next(Candidatos.Count)].Id ?? 0;
+        int cargoId = Cargos[random.Next(Cargos.Count)].Id;
+
+        // Verificar se já existe uma inscrição com esse candidato e cargo
+        bool inscricaoExistente = Inscricoes.Any(insc => insc.CandidatoId == candidatoId && insc.CargoId == cargoId);
+
+        if (!inscricaoExistente)
+        {
+          // Gerar notas aleatórias entre 0 e 10
+          double notaGerais = Math.Round(random.NextDouble() * 10, 2);
+          double notaEspecificos = Math.Round(random.NextDouble() * 10, 2);
+
+          var inscricao = new Inscricao
+          {
+            CandidatoId = candidatoId,
+            CargoId = cargoId,
+            DataInscricao = DateTime.Now.AddDays(-random.Next(1, 30)),
+            NotaConhGerais = notaGerais,
+            NotaConhEspecificos = notaEspecificos,
+            NumeroInsc = $"INSC{DateTime.Now.Ticks.ToString().Substring(10)}"
+          };
+
+          await InscricaoService.CreateInscricao(inscricao);
+        }
+      }
+
+      Inscricoes = await InscricaoService.GetInscricoes();
+      ToastService.ShowSuccess("Inscrições aleatórias criadas com sucesso!");
+
+      await JSRuntime.InvokeVoidAsync("initDataCharts",
+      Candidatos.Count,
+      Cargos.Count,
+      Inscricoes.Count,
+      Cargos.Select(c => c.NomeCargo).ToArray(),
+      InscricoesPorCargo.Values.ToArray(),
+      DonutLabels,
+      DonutSeries,
+      PieLabels,
+      PieSeries
+      );
+
+      StateHasChanged();
+    }
+    catch (Exception ex)
+    {
+      ToastService.ShowError($"Erro ao gerar inscrições aleatórias: {ex.Message}");
+    }
   }
 }
