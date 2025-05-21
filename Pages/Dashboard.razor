@@ -124,7 +124,6 @@
 
 <script>
   document.addEventListener("DOMContentLoaded", function () {
-    // Use variáveis globais no window para evitar redeclaração
     window.chartColumn = window.chartColumn || null;
     window.chartDonut = window.chartDonut || null;
     window.chartPie = window.chartPie || null;
@@ -137,6 +136,7 @@
 
     window.initDataCharts = function (totalCandidatos, totalCargos, totalInscricoes, cargos, inscricoesPorCargo, donutLabelsParam, donutSeriesParam, pieLabelsParam, pieSeriesParam) {
       console.log('initDataCharts chamado', { totalCandidatos, totalCargos, totalInscricoes, cargos, inscricoesPorCargo });
+
       window.allCargos = cargos;
       window.allInscricoesPorCargo = inscricoesPorCargo;
       window.donutLabels = donutLabelsParam;
@@ -144,17 +144,14 @@
       window.pieLabels = pieLabelsParam;
       window.pieSeries = pieSeriesParam;
 
-      // Destroi gráficos antigos se existirem
       if (window.chartColumn) { window.chartColumn.destroy(); window.chartColumn = null; }
       if (window.chartDonut) { window.chartDonut.destroy(); window.chartDonut = null; }
       if (window.chartPie) { window.chartPie.destroy(); window.chartPie = null; }
 
-      // Verifica se existem dados para exibir
       if (cargos.length === 0 || inscricoesPorCargo.length === 0) {
-        return; // Não renderiza os gráficos se não houver dados
+        return;
       }
 
-      // Gráfico de barras
       if (typeof ApexCharts !== "undefined" && document.getElementById("column-chart")) {
         const optionsColumnChart = {
           colors: ["#1A56DB"],
@@ -243,7 +240,6 @@
         window.chartColumn.render();
       }
 
-      // Donut chart com dados reais
       if (typeof ApexCharts !== "undefined" && document.getElementById("donut-chart")) {
         const optionsDonut = {
           series: window.donutSeries,
@@ -308,7 +304,6 @@
         window.chartDonut.render();
       }
 
-      // Pie chart com dados reais
       if (typeof ApexCharts !== "undefined" && document.getElementById("pie-chart")) {
         const optionsPie = {
           series: window.pieSeries,
@@ -349,7 +344,6 @@
         window.chartPie.render();
       }
 
-      // Evento para atualizar gráfico ao selecionar cargo
       const selectCargo = document.getElementById("selectCargoChart");
       if (selectCargo) {
         selectCargo.onchange = function () {
@@ -480,14 +474,12 @@
       {
         string nome = $"{nomes[random.Next(nomes.Length)]} {sobrenomes[random.Next(sobrenomes.Length)]}";
 
-        // Gerar CPF válido (simplificado, apenas para fins de exemplo)
         StringBuilder cpf = new StringBuilder();
         for (int j = 0; j < 11; j++)
         {
           cpf.Append(random.Next(0, 10));
         }
 
-        // Gerar data de nascimento entre 18 e 60 anos
         DateTime dataNascimento = DateTime.Now.AddYears(-random.Next(18, 60)).AddDays(-random.Next(1, 365));
 
         var candidato = new Candidato
@@ -525,16 +517,13 @@
 
       for (int i = 0; i < quantidadeInscricoes; i++)
       {
-        // Selecionar candidato e cargo aleatórios
         int candidatoId = Candidatos[random.Next(Candidatos.Count)].Id ?? 0;
         int cargoId = Cargos[random.Next(Cargos.Count)].Id;
 
-        // Verificar se já existe uma inscrição com esse candidato e cargo
         bool inscricaoExistente = Inscricoes.Any(insc => insc.CandidatoId == candidatoId && insc.CargoId == cargoId);
 
         if (!inscricaoExistente)
         {
-          // Gerar notas aleatórias entre 0 e 10
           double notaGerais = Math.Round(random.NextDouble() * 10, 2);
           double notaEspecificos = Math.Round(random.NextDouble() * 10, 2);
 
